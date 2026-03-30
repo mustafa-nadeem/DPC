@@ -2,6 +2,57 @@ import './App.css';
 import heroImage from './assets/landing-page/pexels-cedric-fauntleroy-4266942.jpg';
 
 function App() {
+  const services = [
+    {
+      title: 'Women\'s health',
+      summary: 'Specialist support for hormonal health, menopause, and wellbeing at every stage.',
+      theme: 'service-card--women',
+      size: 'service-card--short'
+    },
+    {
+      title: 'Orthopaedics and spinal care',
+      summary: 'Rapid access to diagnostics, pain management, and tailored recovery pathways.',
+      theme: 'service-card--ortho',
+      size: 'service-card--tall'
+    },
+    {
+      title: 'Cardiac care',
+      summary: 'Comprehensive heart checks and consultant-led treatment for ongoing confidence.',
+      theme: 'service-card--cardiac',
+      size: 'service-card--medium'
+    },
+    {
+      title: 'Maternity care',
+      summary: 'Consultant-led pregnancy care with personalised plans for mother and baby.',
+      theme: 'service-card--maternity',
+      size: 'service-card--short'
+    },
+    {
+      title: 'Cancer care',
+      summary: 'Fast diagnostics, multidisciplinary treatment, and compassionate follow-up care.',
+      theme: 'service-card--cancer',
+      size: 'service-card--tall'
+    },
+    {
+      title: 'Neurology and neurosurgery',
+      summary: 'Advanced imaging and expert neurological care for complex conditions.',
+      theme: 'service-card--neuro',
+      size: 'service-card--medium'
+    },
+    {
+      title: 'Fertility and reproductive medicine',
+      summary: 'Evidence-based fertility support, testing, and consultant guidance at each step.',
+      theme: 'service-card--fertility',
+      size: 'service-card--tall'
+    },
+    {
+      title: 'Respiratory medicine',
+      summary: 'Breathing assessments, long-term condition support, and specialist treatment.',
+      theme: 'service-card--respiratory',
+      size: 'service-card--short'
+    }
+  ];
+
   return (
     <div className="App">
       <header className="navbar">
@@ -61,26 +112,33 @@ function App() {
           <div className="intro__image intro__image--card" role="img" aria-label="Patient consultation" />
         </div>
       </section>
-      <section className="services">
-        <div className="container services__inner">
-          <div className="services__header">
-            <span className="services__eyebrow">GP SERVICES</span>
-            <h2 className="services__title">Expert GP care, when you need it</h2>
+      <section id="services" className="services">
+        <div className="container services__layout">
+          <div className="services__panel">
+            <span className="services__eyebrow">OUR SERVICE LINES</span>
+            <h2 className="services__title">Access specialised care</h2>
             <p className="services__subtitle">
-              Same-day appointments, thorough consultations, and ongoing support tailored to your health goals.
+              We offer specialised care across all areas of medicine to treat a broad range of conditions,
+              including those that are very rare. Our experts collaborate on multidisciplinary teams to share
+              knowledge and offer holistic and tailored treatment plans.
             </p>
+            <button className="services__cta" type="button">Search all departments</button>
           </div>
-          <div className="services__grid">
-            <ul className="services__list">
-              <li className="services__item">Private GP Birmingham</li>
-              <li className="services__item">Hay Fever Treatment</li>
-              <li className="services__item">Immunisations</li>
-              <li className="services__item">Travel Clinic</li>
-              <li className="services__item">Weight Loss Clinic</li>
-              <li className="services__item">Longevity &amp; Lifestyle Clinic</li>
-              <li className="services__item">Menopause &amp; Female Health</li>
-              <li className="services__item">IV Iron &amp; Wellness Drips</li>
-            </ul>
+          <div className="services__rail">
+            {services.map((service) => (
+              <article
+                key={service.title}
+                className={`service-card ${service.theme} ${service.size}`}
+                aria-label={service.title}
+              >
+                <div className="service-card__scrim" aria-hidden="true" />
+                <div className="service-card__content">
+                  <h3 className="service-card__title">{service.title}</h3>
+                  <p className="service-card__summary">{service.summary}</p>
+                  <a className="service-card__link" href="#services">Learn more</a>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
