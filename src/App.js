@@ -1,14 +1,14 @@
 import './App.css';
 import heroImage from './assets/landing-page/pexels-cedric-fauntleroy-4266942.jpg';
+import logo from './assets/logo/transparent-logo-navbar.svg';
 
 function App() {
   return (
     <div className="App">
       <header className="navbar">
         <div className="navbar__inner container">
-          <div className="navbar__logo" aria-label="Logo">
-            <span className="logo-mark" aria-hidden="true" />
-            <span className="logo-text">Logo</span>
+          <div className="navbar__logo" aria-label="Daventry Private Clinic">
+            <img className="logo-image" src={logo} alt="Daventry Private Clinic" />
           </div>
           <nav className="navbar__links" aria-label="Primary">
             <a className="navbar__link" href="#home">Home</a>
