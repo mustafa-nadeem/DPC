@@ -53,6 +53,45 @@ function App() {
     }
   ];
 
+  const dermatologyServices = [
+    {
+      title: 'Acne and breakout treatment',
+      summary: 'Placeholder service card for consultant-led assessment and personalised treatment plans.',
+      theme: 'service-card--derm-acne',
+      size: 'service-card--short'
+    },
+    {
+      title: 'Eczema and psoriasis care',
+      summary: 'Placeholder service card for long-term skin condition support with ongoing follow-up.',
+      theme: 'service-card--derm-eczema',
+      size: 'service-card--tall'
+    },
+    {
+      title: 'Mole checks and lesion review',
+      summary: 'Placeholder service card for skin checks, triage, and fast onward referral when needed.',
+      theme: 'service-card--derm-mole',
+      size: 'service-card--medium'
+    },
+    {
+      title: 'Rosacea and redness clinic',
+      summary: 'Placeholder service card for flare-up control, trigger planning, and routine skin maintenance.',
+      theme: 'service-card--derm-rosacea',
+      size: 'service-card--short'
+    },
+    {
+      title: 'Pigmentation and melasma care',
+      summary: 'Placeholder service card for tone correction pathways and evidence-based skin therapies.',
+      theme: 'service-card--derm-pigment',
+      size: 'service-card--tall'
+    },
+    {
+      title: 'Hair and scalp dermatology',
+      summary: 'Placeholder service card for scalp diagnostics, shedding concerns, and treatment options.',
+      theme: 'service-card--derm-scalp',
+      size: 'service-card--medium'
+    }
+  ];
+
   return (
     <div className="App">
       <header className="navbar">
@@ -139,6 +178,35 @@ function App() {
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+      <section id="dermatology-services" className="services services--reverse services--dermatology">
+        <div className="container services__layout">
+          <div className="services__rail">
+            {dermatologyServices.map((service) => (
+              <article
+                key={service.title}
+                className={`service-card ${service.theme} ${service.size}`}
+                aria-label={service.title}
+              >
+                <div className="service-card__scrim" aria-hidden="true" />
+                <div className="service-card__content">
+                  <h3 className="service-card__title">{service.title}</h3>
+                  <p className="service-card__summary">{service.summary}</p>
+                  <a className="service-card__link" href="#dermatology-services">Learn more</a>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="services__panel">
+            <span className="services__eyebrow">DERMATOLOGY SERVICES</span>
+            <h2 className="services__title">Specialist skin care that is tailored to you</h2>
+            <p className="services__subtitle">
+              From diagnosis to ongoing treatment, our dermatology team supports common and complex skin
+              concerns with personalised plans and clear next steps.
+            </p>
+            <button className="services__cta" type="button">Explore dermatology services</button>
           </div>
         </div>
       </section>

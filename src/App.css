@@ -256,12 +256,20 @@
   color: #111111;
 }
 
+.services--dermatology {
+  background: #f3e5cb;
+}
+
 .services__layout {
   display: grid;
   grid-template-columns: minmax(300px, 500px) minmax(0, 760px);
   gap: clamp(40px, 6vw, 112px);
   align-items: start;
   justify-content: space-between;
+}
+
+.services--reverse .services__layout {
+  grid-template-columns: minmax(0, 760px) minmax(300px, 500px);
 }
 
 .services__panel {
@@ -274,6 +282,10 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.services--reverse .services__panel {
+  transform: translateX(14px);
 }
 
 .services__eyebrow {
@@ -325,6 +337,10 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   row-gap: 18px;
   column-gap: 18px;
+}
+
+.services--reverse .services__rail {
+  margin-left: 0;
 }
 
 .service-card {
@@ -430,6 +446,30 @@
 
 .service-card--respiratory {
   background: linear-gradient(140deg, #7a98af, #4e6578 43%, #2a3b4c);
+}
+
+.service-card--derm-acne {
+  background: linear-gradient(145deg, #caa193, #8b6d68 46%, #534e62);
+}
+
+.service-card--derm-eczema {
+  background: linear-gradient(145deg, #b7ab9f, #7e746f 45%, #4c5161);
+}
+
+.service-card--derm-mole {
+  background: linear-gradient(145deg, #d1b39a, #977f69 45%, #5a5868);
+}
+
+.service-card--derm-rosacea {
+  background: linear-gradient(145deg, #c59290, #8e6666 46%, #4f4f65);
+}
+
+.service-card--derm-pigment {
+  background: linear-gradient(145deg, #bda58f, #856d5e 45%, #4a4d60);
+}
+
+.service-card--derm-scalp {
+  background: linear-gradient(145deg, #9ea6ae, #697481 44%, #374355);
 }
 
 .location {
