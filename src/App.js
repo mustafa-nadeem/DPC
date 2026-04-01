@@ -1,8 +1,25 @@
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import heroImage from './assets/landing-page/pexels-cedric-fauntleroy-4266942.jpg';
 import logo from './assets/logo/transparent-logo-navbar.svg';
 
+const splitMenuItems = (items, columnCount = 2) => {
+  const columns = Array.from({ length: columnCount }, () => []);
+
+  items.forEach((item, index) => {
+    columns[index % columnCount].push(item);
+  });
+
+  return columns;
+};
+
 function App() {
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [dropdownMotion, setDropdownMotion] = useState('fade');
+  const [mobileExpanded, setMobileExpanded] = useState({});
+  const menuCloseTimerRef = useRef(null);
+
   const services = [
     {
       title: 'Women\'s health',
@@ -93,18 +110,305 @@ function App() {
     }
   ];
 
+  const gpColumns = splitMenuItems(
+    services.map((service) => ({
+      title: service.title,
+      summary: service.summary,
+      href: '#services'
+    })),
+    2
+  );
+
+  const dermatologyColumns = splitMenuItems(
+    dermatologyServices.map((service) => ({
+      title: service.title,
+      summary: service.summary,
+      href: '#dermatology-services'
+    })),
+    2
+  );
+
+  const megaMenus = {
+    'gp-services': {
+      headline: 'GP Services',
+      featured: {
+        eyebrow: 'Our care model',
+        title: 'Fast access to trusted GP-led care',
+        copy: 'Same-week appointments, continuity, and specialist pathways when you need onward support.',
+        ctaLabel: 'Explore GP pathways',
+        href: '#services'
+      },
+      columns: [
+        { heading: 'Primary care', items: gpColumns[0] },
+        { heading: 'Extended support', items: gpColumns[1] }
+      ]
+    },
+    services: {
+      headline: 'Services',
+      featured: {
+        eyebrow: 'Specialist clinics',
+        title: 'Dermatology pathways built around your needs',
+        copy: 'From diagnosis through long-term treatment, get a clear plan and specialist support at every step.',
+        ctaLabel: 'View dermatology services',
+        href: '#dermatology-services'
+      },
+      columns: [
+        { heading: 'Core dermatology', items: dermatologyColumns[0] },
+        { heading: 'Specialist dermatology', items: dermatologyColumns[1] }
+      ]
+    }
+  };
+
+  const navLinks = [
+    { id: 'gp-services', label: 'GP Services', href: '#services', hasDropdown: true },
+    { id: 'services', label: 'Services', href: '#dermatology-services', hasDropdown: true },
+    { id: 'our-team', label: 'Our Team', href: '#', hasDropdown: false },
+    { id: 'for-patient', label: 'For Patient', href: '#', hasDropdown: false },
+    { id: 'contact', label: 'Contact', href: '#', hasDropdown: false }
+  ];
+
+  const dropdownOrder = ['gp-services', 'services'];
+
+  const clearMenuCloseTimer = () => {
+    if (menuCloseTimerRef.current) {
+      clearTimeout(menuCloseTimerRef.current);
+      menuCloseTimerRef.current = null;
+    }
+  };
+
+  const openDropdown = (menuId) => {
+    clearMenuCloseTimer();
+
+    if (activeDropdown && activeDropdown !== menuId) {
+      const currentIndex = dropdownOrder.indexOf(activeDropdown);
+      const nextIndex = dropdownOrder.indexOf(menuId);
+
+      if (currentIndex !== -1 && nextIndex !== -1) {
+        setDropdownMotion(nextIndex > currentIndex ? 'slide-right' : 'slide-left');
+      } else {
+        setDropdownMotion('fade');
+      }
+    } else {
+      setDropdownMotion('fade');
+    }
+
+    setActiveDropdown(menuId);
+  };
+
+  const scheduleDropdownClose = () => {
+    clearMenuCloseTimer();
+    menuCloseTimerRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+      setDropdownMotion('fade');
+    }, 200);
+  };
+
+  const closeMobileNav = () => {
+    setIsNavOpen(false);
+    setMobileExpanded({});
+  };
+
+  const handleMobileMenuToggle = () => {
+    setIsNavOpen((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setMobileExpanded({});
+      }
+
+      return next;
+    });
+    setActiveDropdown(null);
+  };
+
+  const toggleMobileGroup = (menuId) => {
+    setMobileExpanded((prev) => ({
+      ...prev,
+      [menuId]: !prev[menuId]
+    }));
+  };
+
+  const handleTriggerKeyDown = (event, menuId) => {
+    if (event.key === 'Escape') {
+      setActiveDropdown(null);
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      openDropdown(menuId);
+
+      setTimeout(() => {
+        const firstMenuItem = document.querySelector(`#mega-panel-${menuId} .navbar__mega-item`);
+
+        if (firstMenuItem instanceof HTMLElement) {
+          firstMenuItem.focus();
+        }
+      }, 0);
+    }
+  };
+
+  useEffect(() => () => clearMenuCloseTimer(), []);
+
+  const activeMegaMenu = activeDropdown ? megaMenus[activeDropdown] : null;
+
   return (
     <div className="App">
       <header className="navbar">
         <div className="navbar__inner container">
-          <div className="navbar__logo" aria-label="Daventry Private Clinic">
-            <img className="logo-image" src={logo} alt="Daventry Private Clinic" />
+          <div className="navbar__left">
+            <div className="navbar__logo" aria-label="Daventry Private Clinic">
+              <img className="logo-image" src={logo} alt="Daventry Private Clinic" />
+            </div>
           </div>
-          <nav className="navbar__links" aria-label="Primary">
-            <a className="navbar__link" href="#home">Home</a>
-            <a className="navbar__link" href="#services">Our Services</a>
-            <a className="navbar__link" href="#about">About Us</a>
+
+          <nav className="navbar__center" aria-label="Primary">
+            {navLinks.map((link) => (
+              link.hasDropdown ? (
+                <div
+                  key={link.id}
+                  className={`navbar__dropdown-trigger ${activeDropdown === link.id ? 'is-active' : ''}`}
+                  onMouseEnter={() => openDropdown(link.id)}
+                  onMouseLeave={scheduleDropdownClose}
+                >
+                  <a
+                    className="navbar__link"
+                    href={link.href}
+                    aria-haspopup="true"
+                    aria-expanded={activeDropdown === link.id}
+                    aria-controls={`mega-panel-${link.id}`}
+                    onFocus={() => openDropdown(link.id)}
+                    onKeyDown={(event) => handleTriggerKeyDown(event, link.id)}
+                  >
+                    {link.label}
+                    <span className="navbar__dropdown-icon" aria-hidden="true">▾</span>
+                  </a>
+                </div>
+              ) : (
+                <a
+                  key={link.id}
+                  className="navbar__link"
+                  href={link.href}
+                  onFocus={() => setActiveDropdown(null)}
+                >
+                  {link.label}
+                </a>
+              )
+            ))}
+          </nav>
+
+          <div className="navbar__right">
             <button className="navbar__cta" type="button">Book Now</button>
+
+            <button
+              className="navbar__menu-toggle"
+              type="button"
+              aria-label="Toggle navigation menu"
+              aria-expanded={isNavOpen}
+              aria-controls="mobile-nav-panel"
+              onClick={handleMobileMenuToggle}
+            >
+              {isNavOpen ? 'Close' : 'Menu'}
+            </button>
+          </div>
+        </div>
+
+        <div
+          className={`navbar__mega-shell ${activeMegaMenu ? 'is-open' : ''}`}
+          onMouseEnter={clearMenuCloseTimer}
+          onMouseLeave={scheduleDropdownClose}
+        >
+          {activeMegaMenu && (
+            <div
+              key={`${activeDropdown}-${dropdownMotion}`}
+              id={`mega-panel-${activeDropdown}`}
+              className={`navbar__mega-panel container ${dropdownMotion}`}
+              role="region"
+              aria-label={`${activeMegaMenu.headline} submenu`}
+            >
+              <div className="navbar__mega-columns">
+                {activeMegaMenu.columns.map((column) => (
+                  <div key={column.heading} className="navbar__mega-section">
+                    <h3 className="navbar__mega-heading">{column.heading}</h3>
+                    <div className="navbar__mega-items">
+                      {column.items.map((item) => (
+                        <a key={item.title} className="navbar__mega-item" href={item.href}>
+                          <span className="navbar__mega-item-title">{item.title}</span>
+                          <span className="navbar__mega-item-description">{item.summary}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <aside className="navbar__mega-featured">
+                <span className="navbar__mega-featured-eyebrow">{activeMegaMenu.featured.eyebrow}</span>
+                <h3 className="navbar__mega-featured-title">{activeMegaMenu.featured.title}</h3>
+                <p className="navbar__mega-featured-copy">{activeMegaMenu.featured.copy}</p>
+                <a className="navbar__mega-featured-link" href={activeMegaMenu.featured.href}>
+                  {activeMegaMenu.featured.ctaLabel}
+                </a>
+              </aside>
+            </div>
+          )}
+        </div>
+
+        <div
+          id="mobile-nav-panel"
+          className={`navbar__mobile-panel container ${isNavOpen ? 'is-open' : ''}`}
+        >
+          <nav className="navbar__mobile-links" aria-label="Mobile primary">
+            {navLinks.map((link) => (
+              link.hasDropdown ? (
+                <div
+                  key={`mobile-group-${link.id}`}
+                  className={`navbar__mobile-group ${mobileExpanded[link.id] ? 'is-open' : ''}`}
+                >
+                  <button
+                    type="button"
+                    className="navbar__mobile-summary"
+                    onClick={() => toggleMobileGroup(link.id)}
+                    aria-expanded={Boolean(mobileExpanded[link.id])}
+                    aria-controls={`mobile-submenu-${link.id}`}
+                  >
+                    <span>{link.label}</span>
+                    <span className="navbar__mobile-summary-icon" aria-hidden="true">▾</span>
+                  </button>
+
+                  <div id={`mobile-submenu-${link.id}`} className="navbar__mobile-submenu">
+                    {megaMenus[link.id].columns.map((column) => (
+                      <div key={`mobile-col-${link.id}-${column.heading}`} className="navbar__mobile-submenu-group">
+                        <span className="navbar__mobile-submenu-heading">{column.heading}</span>
+                        {column.items.map((item) => (
+                          <a
+                            key={`mobile-${link.id}-${item.title}`}
+                            className="navbar__mobile-submenu-link"
+                            href={item.href}
+                            onClick={closeMobileNav}
+                          >
+                            {item.title}
+                          </a>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <a
+                  key={`mobile-${link.id}`}
+                  className="navbar__mobile-link"
+                  href={link.href}
+                  onClick={closeMobileNav}
+                >
+                  {link.label}
+                </a>
+              )
+            ))}
+
+            <button className="navbar__cta navbar__cta--mobile" type="button" onClick={closeMobileNav}>
+              Book Now
+            </button>
           </nav>
         </div>
       </header>
