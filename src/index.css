@@ -14,9 +14,17 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Sana Sans";
+  src: url("./assets/fonts/Sana_Sans-400_700.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --font-body: "Neue Haas Display", "Helvetica Neue", Arial, sans-serif;
-  --font-heading: "Neue Haas Display Medium", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
