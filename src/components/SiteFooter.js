@@ -18,8 +18,8 @@ export default function SiteFooter() {
         <div className="footer__inner">
           <div className="footer__column footer__column--brand">
             <p className="footer__text">Private GP and specialist care in one trusted place.</p>
-            <a className="footer__contact-link" href="mailto:info@daventryprivateclinic.co.uk">info@daventryprivateclinic.co.uk</a>
-            <a className="footer__contact-link" href="tel:+441327737888">+44 1327 737888</a>
+            <a className="footer__contact-link" href="mailto:info@daventryclinic.co.uk">info@daventryclinic.co.uk</a>
+            <a className="footer__contact-link" href="tel:+447463090692">+44 7463 090692</a>
           </div>
 
           <div className="footer__column">

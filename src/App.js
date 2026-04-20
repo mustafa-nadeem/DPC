@@ -5,6 +5,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import GpServices from './pages/GpServices';
 import Services from './pages/Services';
+import ServiceDetail from './pages/ServiceDetail';
 import OurTeam from './pages/OurTeam';
 import ForPatient from './pages/ForPatient';
 import Contact from './pages/Contact';
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/gp-services" element={<GpServices />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/services/:slug" element={<ServiceDetail />} />
           <Route path="/our-team" element={<OurTeam />} />
           <Route path="/for-patient" element={<ForPatient />} />
           <Route path="/contact" element={<Contact />} />

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import placeholderImg from '../assets/landing-page/pexels-cedric-fauntleroy-4266942.jpg';
+import introImage from '../assets/landing-page/3c677590e3b04eb08ff5c40875e2aaa9.webp';
 import SiteFooter from '../components/SiteFooter';
 import useScrollReveal from '../hooks/useScrollReveal';
+import { getServicePathByTitle } from '../data/services';
 
 const services = [
   { title: 'Private GP Birmingham', summary: 'Same-week appointments with experienced GPs for consultations, referrals, and ongoing care.', theme: 'service-card--women', size: 'service-card--short' },
@@ -12,13 +14,13 @@ const services = [
   { title: 'Weight Loss Clinic', summary: 'Personalised weight management plans with clinical oversight and ongoing support.', theme: 'service-card--maternity', size: 'service-card--tall' },
   { title: 'Longevity & Lifestyle Clinic', summary: 'Evidence-based health optimisation to help you live longer and feel your best.', theme: 'service-card--cardiac', size: 'service-card--medium' },
   { title: 'Menopause & Female Health', summary: 'Specialist support for hormonal health, menopause, and wellbeing at every stage.', theme: 'service-card--fertility', size: 'service-card--tall' },
-  { title: 'IV Iron & Wellness Drips', summary: 'Clinician-administered IV therapies tailored to boost energy, immunity, and recovery.', theme: 'service-card--cancer', size: 'service-card--short' },
 ];
 
 const dermatologyServices = [
   { title: 'Moles', summary: 'Expert mole assessment, monitoring, and removal with fast onward referral when needed.', theme: 'service-card--derm-mole', size: 'service-card--short' },
   { title: 'Vitiligo', summary: 'Specialist diagnosis and personalised treatment plans for skin depigmentation.', theme: 'service-card--derm-pigment', size: 'service-card--tall' },
   { title: 'Urticaria', summary: 'Allergy-led assessment and management for chronic or acute hives and skin reactions.', theme: 'service-card--derm-rosacea', size: 'service-card--medium' },
+  { title: 'Eczema', summary: 'Specialist diagnosis and treatment plans for eczema flare-ups, itch control, and long-term skin health.', theme: 'service-card--derm-eczema', size: 'service-card--short' },
   { title: 'Excessive Sweating', summary: 'Clinical treatments for hyperhidrosis including topical and injectable options.', theme: 'service-card--derm-eczema', size: 'service-card--short' },
   { title: 'Psoriasis', summary: 'Long-term skin condition management with personalised care plans and follow-up.', theme: 'service-card--derm-acne', size: 'service-card--tall' },
   { title: 'Benign Skin Lesion', summary: 'Safe removal of cysts, lipomas, skin tags, and other benign lesions by our clinicians.', theme: 'service-card--derm-scalp', size: 'service-card--medium' },
@@ -31,35 +33,50 @@ const dermatologyServices = [
 
 const testimonials = [
   {
-    name: 'H. Ahmad',
-    role: 'Patient at Daventry Private Clinic',
-    quote: 'From my first enquiry to treatment follow-up, every step felt coordinated and calm. I never had to chase for updates, and the team always explained what was happening in plain language. That level of communication made me feel genuinely supported, not rushed through a process.'
+    name: 'Verified Patient A',
+    role: 'Aged and Sun Damaged Skin',
+    quote: 'Dr Salako is a good listener and explains in great detail.'
   },
   {
-    name: 'B. Harrison',
-    role: 'Patient at Daventry Private Clinic',
-    quote: 'I booked on short notice and still felt like I had proper time with the doctor. The consultation was thorough, practical, and focused on outcomes I could actually measure. I left with a clear plan, clear timelines, and confidence that I was in the right place.'
+    name: 'Verified Patient B',
+    role: 'General Dermatology · Minor Skin Surgery · Skin Cancer',
+    quote: 'Absolutely fantastic service. Dr Salako went out of his way to help my husband.'
   },
   {
-    name: 'M. Shah',
-    role: 'Patient at Daventry Private Clinic',
-    quote: 'Private care can sometimes feel fragmented, but this clinic is different. Appointments, diagnostics, and next steps were connected in a way that reduced stress immediately. I felt listened to throughout, and the care felt personal rather than transactional.'
+    name: 'Verified Patient C',
+    role: 'Aged and Sun Damaged Skin',
+    quote: '10/10 stars if possible. Very good.'
   },
   {
-    name: 'P. Byrne',
-    role: 'Family Patient',
-    quote: 'As a family, we needed clarity before making decisions. The clinicians took time to explain options, risks, and expected outcomes without jargon. That transparency helped us choose the right route quickly, and we felt reassured at every stage.'
+    name: 'Verified Patient D',
+    role: 'Cysts · Cyst Removal',
+    quote: 'Doctor Kazeem is very careful. He listens when you talk to him and takes concerns seriously.'
   },
   {
-    name: 'J. Williams',
-    role: 'Repeat Patient',
-    quote: 'Continuity has been the biggest difference for me. I see familiar clinicians who already understand my history, so each appointment builds on the last one instead of starting from zero. It saves time, improves decisions, and makes the whole experience far more effective.'
+    name: 'Verified Patient E',
+    role: 'Minor Skin Surgery · Aged and Sun Damaged Skin',
+    quote: 'Positive experience.'
   },
   {
-    name: 'A. Barzante',
-    role: 'New Patient',
-    quote: 'The clinic environment is modern and professional, but what stood out was the warmth of the team. I felt heard from day one, and treatment began quickly without unnecessary delays. The process was efficient, but never at the expense of quality or care.'
-  }
+    name: 'Verified Patient F',
+    role: 'Minor Skin Surgery',
+    quote: 'This doctor gives amazing care - he makes procedures comfortable.'
+  },
+  {
+    name: 'Verified Patient G',
+    role: 'Cysts',
+    quote: 'Dr. Kazeem is highly professional and polite.'
+  },
+  {
+    name: 'Verified Patient H',
+    role: 'General Dermatology',
+    quote: 'Successful consultation.'
+  },
+  {
+    name: 'Verified Patient I',
+    role: 'General Dermatology · Aged and Sun Damaged Skin',
+    quote: 'Helpful and friendly.'
+  },
 ];
 
 const testimonialColumns = [0, 1, 2].map((offset) => (
@@ -96,7 +113,7 @@ export default function Home() {
 
       <section id="about" className="intro intro--tall">
         <div className="container intro__grid">
-          <div className="intro__image intro__image--large" data-reveal="left" role="img" aria-label="Clinician with patient" style={{ backgroundImage: `url(${placeholderImg})` }} />
+          <div className="intro__image intro__image--large" data-reveal="left" role="img" aria-label="Clinician with patient" style={{ backgroundImage: `url(${introImage})` }} />
           <div className="intro__content" data-reveal="right">
             <span className="intro__eyebrow">WELCOME TO DAVENTRY PRIVATE CLINIC</span>
             <h2 className="intro__title">Where you're treated is your choice, a big one.</h2>
@@ -155,7 +172,7 @@ export default function Home() {
             <span className="services__eyebrow">GP SERVICES</span>
             <h2 className="services__title">Private GP care, on your terms</h2>
             <p className="services__subtitle">Same-week appointments with experienced GPs across a wide range of services — from routine health checks to specialist clinics.</p>
-            <button className="services__cta" type="button">View all GP services</button>
+            <Link className="services__cta" to="/gp-services">View all GP services</Link>
           </div>
           <div className="services__rail" data-reveal="up">
             {services.map((service) => (
@@ -164,6 +181,7 @@ export default function Home() {
                 <div className="service-card__content">
                   <h3 className="service-card__title">{service.title}</h3>
                   <p className="service-card__summary">{service.summary}</p>
+                  <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
                 </div>
               </article>
             ))}
@@ -182,6 +200,7 @@ export default function Home() {
                 <div className="service-card__content">
                   <h3 className="service-card__title">{service.title}</h3>
                   <p className="service-card__summary">{service.summary}</p>
+                  <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
                 </div>
               </article>
             ))}
@@ -190,7 +209,7 @@ export default function Home() {
             <span className="services__eyebrow">SKIN & DERMATOLOGY</span>
             <h2 className="services__title">Specialist skin care, tailored to you</h2>
             <p className="services__subtitle">From mole checks to complex skin conditions, our dermatology team provides expert diagnosis and personalised treatment plans.</p>
-            <button className="services__cta" type="button">Explore skin services</button>
+            <Link className="services__cta" to="/services">Explore skin services</Link>
           </div>
         </div>
       </section>
@@ -233,10 +252,10 @@ export default function Home() {
       <section className="location" data-reveal="up">
         <iframe
           className="location__map"
-          title="Three Shires Hospital map"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.404843883182!2d-0.8770387874730239!3d52.23602985709786!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48770ed378395d35%3A0x6bbb167633f19e83!2sThree%20Shires%20Hospital!5e0!3m2!1sen!2s!4v1775189408691!5m2!1sen!2s"
-          width="800"
-          height="600"
+          title="8 St John's Square, Daventry map"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2442.118433525238!2d-1.1632248874769!3d52.25939435537425!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4877161ad72eabad%3A0x990fe464d6fd8d1!2s8%20St%20John%27s%20Square%2C%20Daventry%20NN11%204FG!5e0!3m2!1sen!2suk!4v1776669390220!5m2!1sen!2suk"
+          width="600"
+          height="450"
           style={{ border: 0 }}
           allowFullScreen
           loading="lazy"

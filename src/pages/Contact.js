@@ -1,24 +1,11 @@
 import { useState } from 'react';
 import SiteFooter from '../components/SiteFooter';
 import useScrollReveal from '../hooks/useScrollReveal';
+import { gpServices, skinServices } from '../data/services';
 
 const treatmentOptions = [
-  'Private GP Consultation',
-  'Hay Fever Treatment',
-  'Immunisations',
-  'Travel Clinic',
-  'Weight Loss Clinic',
-  'Longevity & Lifestyle Clinic',
-  'Menopause & Female Health',
-  'IV Iron & Wellness Drips',
-  'Moles',
-  'Vitiligo',
-  'Urticaria',
-  'Excessive Sweating',
-  'Psoriasis',
-  'Benign Skin Lesion',
-  'Skin Cancer',
-  'Hair Loss',
+  ...gpServices.map((service) => service.title),
+  ...skinServices.map((service) => service.title),
   'Other',
 ];
 
@@ -55,8 +42,8 @@ export default function Contact() {
               Same-week private appointments with experienced clinicians. Tell us what you need and we'll get back to you within 24 hours.
             </p>
             <div className="booking-hero__contact">
-              <a className="booking-hero__contact-link" href="mailto:info@daventryprivateclinic.co.uk">info@daventryprivateclinic.co.uk</a>
-              <a className="booking-hero__contact-link" href="tel:+441327737888">+44 1327 737888</a>
+              <a className="booking-hero__contact-link" href="mailto:info@daventryclinic.co.uk">info@daventryclinic.co.uk</a>
+              <a className="booking-hero__contact-link" href="tel:+447463090692">+44 7463 090692</a>
             </div>
           </div>
 

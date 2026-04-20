@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo/transparent-logo-navbar.svg';
+import { gpServices, skinServices, getServicePath } from '../data/services';
 
 const splitMenuItems = (items, columnCount = 2) => {
   const columns = Array.from({ length: columnCount }, () => []);
@@ -8,30 +9,15 @@ const splitMenuItems = (items, columnCount = 2) => {
   return columns;
 };
 
-const gpMenuItems = [
-  { title: 'Private GP Birmingham', href: '/gp-services' },
-  { title: 'Hay Fever Treatment', href: '/gp-services' },
-  { title: 'Immunisations', href: '/gp-services' },
-  { title: 'Travel Clinic', href: '/gp-services' },
-  { title: 'Weight Loss Clinic', href: '/gp-services' },
-  { title: 'Longevity & Lifestyle Clinic', href: '/gp-services' },
-  { title: 'Menopause & Female Health', href: '/gp-services' },
-  { title: 'IV Iron & Wellness Drips', href: '/gp-services' },
-];
+const gpMenuItems = gpServices.map((service) => ({
+  title: service.title,
+  href: getServicePath(service.slug),
+}));
 
-const serviceMenuItems = [
-  { title: 'Moles', href: '/services' },
-  { title: 'Vitiligo', href: '/services' },
-  { title: 'Urticaria', href: '/services' },
-  { title: 'Excessive Sweating', href: '/services' },
-  { title: 'Psoriasis', href: '/services' },
-  { title: 'Benign Skin Lesion', href: '/services' },
-  { title: 'Infantile Acne', href: '/services' },
-  { title: 'Skin Cancer', href: '/services' },
-  { title: 'Skin Itching & its causes', href: '/services' },
-  { title: 'Male Genital Skin Disorders', href: '/services' },
-  { title: 'Hair Loss', href: '/services' },
-];
+const serviceMenuItems = skinServices.map((service) => ({
+  title: service.title,
+  href: getServicePath(service.slug),
+}));
 
 const gpColumns = splitMenuItems(gpMenuItems, 2);
 const serviceColumns = splitMenuItems(serviceMenuItems, 2);
