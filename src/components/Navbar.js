@@ -194,16 +194,23 @@ export default function Navbar() {
         </nav>
 
         <div className="navbar__right">
-          <Link className="navbar__cta" to="/contact">Book Consultation</Link>
+          <Link className="navbar__cta" to="/contact">
+            <span className="navbar__cta-text">Book Consultation</span>
+            <span className="navbar__cta-text--short" aria-hidden="true">Book</span>
+          </Link>
           <button
-            className="navbar__menu-toggle"
+            className={`navbar__menu-toggle ${isNavOpen ? 'is-open' : ''}`}
             type="button"
-            aria-label="Toggle navigation menu"
+            aria-label={isNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={isNavOpen}
             aria-controls="mobile-nav-panel"
             onClick={handleMobileMenuToggle}
           >
-            {isNavOpen ? 'Close' : 'Menu'}
+            <span className="navbar__menu-toggle-bars" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
           </button>
         </div>
       </div>
@@ -258,7 +265,9 @@ export default function Navbar() {
                   aria-controls={`mobile-submenu-${link.id}`}
                 >
                   <span>{link.label}</span>
-                  <span className="navbar__mobile-summary-icon" aria-hidden="true">▾</span>
+                  <svg className="navbar__mobile-summary-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
                 <div id={`mobile-submenu-${link.id}`} className="navbar__mobile-submenu">
                   {megaMenus[link.id].columns.map((column) => (
@@ -275,7 +284,10 @@ export default function Navbar() {
               </div>
             ) : (
               <Link key={`mobile-${link.id}`} className="navbar__mobile-link" to={link.href} onClick={closeMobileNav}>
-                {link.label}
+                <span>{link.label}</span>
+                <svg className="navbar__mobile-link-arrow" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </Link>
             )
           )}

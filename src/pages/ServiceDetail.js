@@ -813,6 +813,21 @@ export default function ServiceDetail() {
     };
   }, [sections]);
 
+  useEffect(() => {
+    if (!activeSectionId) return;
+    const link = document.querySelector(
+      `.service-template__toc-link[href="#${activeSectionId}"]`
+    );
+    if (!link) return;
+    const toc = link.closest('.service-template__toc');
+    if (!toc) return;
+    if (!window.matchMedia('(max-width: 980px)').matches) return;
+    const linkRect = link.getBoundingClientRect();
+    const tocRect = toc.getBoundingClientRect();
+    const offset = linkRect.left - tocRect.left - (tocRect.width - linkRect.width) / 2;
+    toc.scrollTo({ left: toc.scrollLeft + offset, behavior: 'smooth' });
+  }, [activeSectionId]);
+
   if (!service) {
     return (
       <>

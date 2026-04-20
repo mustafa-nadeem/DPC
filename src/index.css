@@ -27,11 +27,16 @@
   --font-heading: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #111111;
-  background: #ffffff;
+  background: #0A0F17;
 }
