@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import placeholderImg from '../assets/landing-page/pexels-cedric-fauntleroy-4266942.jpg';
 import introImage from '../assets/landing-page/3c677590e3b04eb08ff5c40875e2aaa9.webp';
@@ -86,6 +86,65 @@ const testimonialColumns = [0, 1, 2].map((offset) => (
 export default function Home() {
   const [videoLoaded, setVideoLoaded] = useState(false);
   useScrollReveal();
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 720px)');
+    if (!mq.matches) return undefined;
+
+    const rails = document.querySelectorAll('.services__rail');
+    const cleanups = [];
+
+    rails.forEach((rail) => {
+      let rafId = 0;
+      let pausedUntil = 0;
+      let lastTs = performance.now();
+      const pxPerSec = 28;
+
+      const start = () => {
+        if (!rail.scrollWidth) return;
+        rail.scrollLeft = 1;
+      };
+
+      const step = (ts) => {
+        const dt = ts - lastTs;
+        lastTs = ts;
+        if (ts >= pausedUntil) {
+          const delta = (pxPerSec * dt) / 1000;
+          const half = rail.scrollWidth / 2;
+          let next = rail.scrollLeft + delta;
+          if (half > 0 && next >= half) next -= half;
+          rail.scrollLeft = next;
+        }
+        rafId = requestAnimationFrame(step);
+      };
+
+      const pause = () => {
+        pausedUntil = performance.now() + 3000;
+      };
+
+      const nudgePause = () => {
+        pausedUntil = performance.now() + 2500;
+      };
+
+      rail.addEventListener('pointerdown', pause, { passive: true });
+      rail.addEventListener('touchstart', pause, { passive: true });
+      rail.addEventListener('wheel', nudgePause, { passive: true });
+      rail.addEventListener('mouseenter', pause);
+      rail.addEventListener('mouseleave', () => { pausedUntil = performance.now() + 600; });
+
+      requestAnimationFrame((ts) => {
+        lastTs = ts;
+        start();
+        rafId = requestAnimationFrame(step);
+      });
+
+      cleanups.push(() => {
+        cancelAnimationFrame(rafId);
+      });
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+  }, []);
 
   return (
     <>
@@ -175,16 +234,28 @@ export default function Home() {
             <Link className="services__cta" to="/gp-services">View all GP services</Link>
           </div>
           <div className="services__rail" data-reveal="up">
-            {services.map((service) => (
-              <article key={service.title} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
-                <div className="service-card__scrim" aria-hidden="true" />
-                <div className="service-card__content">
-                  <h3 className="service-card__title">{service.title}</h3>
-                  <p className="service-card__summary">{service.summary}</p>
-                  <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
-                </div>
-              </article>
-            ))}
+            <div className="services__track">
+              {services.map((service) => (
+                <article key={service.title} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
+                  <div className="service-card__scrim" aria-hidden="true" />
+                  <div className="service-card__content">
+                    <h3 className="service-card__title">{service.title}</h3>
+                    <p className="service-card__summary">{service.summary}</p>
+                    <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
+                  </div>
+                </article>
+              ))}
+              {services.map((service) => (
+                <article key={`${service.title}-clone`} className={`service-card service-card--clone ${service.theme} ${service.size}`} aria-hidden="true">
+                  <div className="service-card__scrim" aria-hidden="true" />
+                  <div className="service-card__content">
+                    <h3 className="service-card__title">{service.title}</h3>
+                    <p className="service-card__summary">{service.summary}</p>
+                    <span className="service-card__link" aria-hidden="true">Learn more</span>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -194,16 +265,28 @@ export default function Home() {
       <section id="dermatology-services" className="services services--reverse services--dermatology">
         <div className="container services__layout">
           <div className="services__rail" data-reveal="up">
-            {dermatologyServices.map((service) => (
-              <article key={service.title} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
-                <div className="service-card__scrim" aria-hidden="true" />
-                <div className="service-card__content">
-                  <h3 className="service-card__title">{service.title}</h3>
-                  <p className="service-card__summary">{service.summary}</p>
-                  <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
-                </div>
-              </article>
-            ))}
+            <div className="services__track">
+              {dermatologyServices.map((service) => (
+                <article key={service.title} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
+                  <div className="service-card__scrim" aria-hidden="true" />
+                  <div className="service-card__content">
+                    <h3 className="service-card__title">{service.title}</h3>
+                    <p className="service-card__summary">{service.summary}</p>
+                    <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
+                  </div>
+                </article>
+              ))}
+              {dermatologyServices.map((service) => (
+                <article key={`${service.title}-clone`} className={`service-card service-card--clone ${service.theme} ${service.size}`} aria-hidden="true">
+                  <div className="service-card__scrim" aria-hidden="true" />
+                  <div className="service-card__content">
+                    <h3 className="service-card__title">{service.title}</h3>
+                    <p className="service-card__summary">{service.summary}</p>
+                    <span className="service-card__link" aria-hidden="true">Learn more</span>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
           <div className="services__panel" data-reveal="left">
             <span className="services__eyebrow">SKIN & DERMATOLOGY</span>

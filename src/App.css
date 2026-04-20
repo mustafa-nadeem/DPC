@@ -75,21 +75,25 @@
     transition-delay: 0s;
   }
 
-  .services__panel[data-reveal],
-  .services__rail[data-reveal] {
+  .services__panel[data-reveal] {
     transform: translateY(24px);
     transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
                 transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .services__panel[data-reveal].is-revealed,
-  .services__rail[data-reveal].is-revealed {
+  .services__panel[data-reveal].is-revealed {
     transform: translateY(0);
   }
 
   .services__panel[data-reveal-delay],
   .services__rail[data-reveal-delay] {
     transition-delay: 0s;
+  }
+
+  .services__rail[data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
   .services--dermatology .services__panel[data-reveal],
@@ -1157,6 +1161,14 @@
 
 .services--reverse .services__rail {
   margin-left: 0;
+}
+
+.services__track {
+  display: contents;
+}
+
+.service-card--clone {
+  display: none;
 }
 
 .service-card {
@@ -3525,14 +3537,46 @@
     max-width: 16ch;
   }
 
-  .services__rail {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .services__rail,
+  .services--reverse .services__rail {
+    display: block;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    grid-template-columns: none;
+    gap: 0;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .services__rail::-webkit-scrollbar,
+  .services--reverse .services__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .services__track {
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    width: max-content;
+    padding: 4px 0;
+  }
+
+  .service-card--clone {
+    display: flex;
   }
 
   .service-card {
     margin: 0;
     height: 340px;
+    width: 78vw;
+    max-width: 320px;
+    flex-shrink: 0;
   }
 
   .service-card--short,
@@ -3541,10 +3585,7 @@
     height: 340px;
   }
 
-  .service-card:nth-child(even) {
-    transform: none;
-  }
-
+  .service-card:nth-child(even),
   .service-card:nth-child(odd) {
     transform: none;
   }
