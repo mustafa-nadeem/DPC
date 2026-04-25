@@ -2,28 +2,60 @@ import { useState } from 'react';
 import SiteFooter from '../components/SiteFooter';
 
 const floatingCards = [
-  { stat: '15+', label: 'specialist clinicians', sub: 'Across GP, dermatology, and allied health', color: '#F9D6E4' },
-  { stat: '98%', label: 'patient satisfaction', sub: 'Based on post-consultation feedback', color: '#FFF3C4' },
-  { stat: '5k+', label: 'patients treated', sub: 'Private and insured patients since opening', color: '#C4F0F0' },
-  { stat: '10+', label: 'years experience', sub: 'Average clinical experience per clinician', color: '#D4EDDA' },
-  { stat: '48hr', label: 'average wait time', sub: 'From booking to your first appointment', color: '#DDD6F3' },
+  { stat: '3+', label: 'clinicians', sub: 'Experienced GPs and specialists you can see quickly', color: '#F9D6E4' },
+  { stat: '98%', label: 'patient satisfaction', sub: 'From verified post-appointment feedback', color: '#FFF3C4' },
+  { stat: '2k+', label: 'patients seen', sub: 'Across private, insured, and self-pay consultations', color: '#C4F0F0' },
+  { stat: '12+', label: 'years average experience', sub: 'Clinical experience across our core team', color: '#D4EDDA' },
+  { stat: '48hrs', label: 'typical first appointment', sub: 'From initial enquiry to being seen', color: '#DDD6F3' },
 ];
 
-const founders = [
+const clinicians = [
   {
-    name: 'Dr Kazeem Babatunde Salako',
-    role: 'CO-FOUNDER',
+    name: 'Dr Amelia Carter',
+    role: 'CLINICIAN',
     bio: [
-      'Dr Kazeem Babatunde Salako brings years of clinical leadership across NHS and private settings to Daventry Private Clinic. His background spans general practice, specialist referrals, and healthcare operations — giving him a comprehensive view of what patients need at every stage of their care journey.',
-      'As co-founder, Dr Salako has been instrumental in developing the clinic\'s specialist service offering and clinical governance framework. He is passionate about raising healthcare standards and ensuring that private care is delivered with the same evidence-based rigour expected in the best NHS institutions.'
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     ],
   },
   {
-    name: 'Dr Ahmad Kusimo',
-    role: 'CO-FOUNDER',
+    name: 'Dr Noah Bennett',
+    role: 'CLINICIAN',
     bio: [
-      'Dr Ahmad Kusimo co-founded Daventry Private Clinic with a vision to deliver high-quality, patient-centred healthcare outside the constraints of the traditional NHS pathway. With extensive experience across general practice and urgent care, he brings a hands-on clinical approach rooted in accessibility and trust.',
-      'His focus on building long-term patient relationships and ensuring continuity of care has shaped the clinic\'s philosophy from day one. Dr Kusimo is committed to combining clinical rigour with a personal touch — ensuring every patient feels heard, informed, and confident in their care.'
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.',
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    ],
+  },
+  {
+    name: 'Dr Sophia Reid',
+    role: 'CLINICIAN',
+    bio: [
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.',
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    ],
+  },
+  {
+    name: 'Dr Lucas Hayes',
+    role: 'CLINICIAN',
+    bio: [
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.',
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    ],
+  },
+  {
+    name: 'Dr Emily Brooks',
+    role: 'CLINICIAN',
+    bio: [
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse.',
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    ],
+  },
+  {
+    name: 'Dr Ethan Moore',
+    role: 'CLINICIAN',
+    bio: [
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.',
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     ],
   },
 ];
@@ -71,19 +103,19 @@ export default function OurTeam() {
       <section className="founders">
         <div className="container founders__inner">
           <div className="founders__intro">
-            <h2 className="founders__heading">Our Founders</h2>
+            <h2 className="founders__heading">Our Clinicians</h2>
             <p className="founders__description">
-              Our founding team brings together years of NHS and private practice leadership, united by a commitment to raising the standard of accessible, patient-centred healthcare.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
           </div>
 
           <div className="founders__cards">
-            {founders.map((founder, index) => (
-              <article key={founder.name} className="founder-card">
-                <div className="founder-card__image" aria-label={founder.name} />
+            {clinicians.map((clinician, index) => (
+              <article key={clinician.name} className="founder-card">
+                <div className="founder-card__image" aria-label={clinician.name} />
                 <div className="founder-card__body">
-                  <h3 className="founder-card__name">{founder.name}</h3>
-                  <span className="founder-card__role">{founder.role}</span>
+                  <h3 className="founder-card__name">{clinician.name}</h3>
+                  <span className="founder-card__role">{clinician.role}</span>
                 </div>
                 <button
                   type="button"
@@ -115,15 +147,15 @@ export default function OurTeam() {
       </button>
       <aside
         className={`profile-sidebar ${activeProfile !== null ? 'is-open' : ''}`}
-        aria-label="Founder profile"
+        aria-label="Clinician profile"
       >
         {activeProfile !== null && (
           <>
-            <div className="profile-sidebar__image" aria-label={founders[activeProfile].name} />
+            <div className="profile-sidebar__image" aria-label={clinicians[activeProfile].name} />
             <div className="profile-sidebar__content">
-              <h3 className="profile-sidebar__name">{founders[activeProfile].name}</h3>
-              <span className="profile-sidebar__role">{founders[activeProfile].role}</span>
-              {founders[activeProfile].bio.map((paragraph, i) => (
+              <h3 className="profile-sidebar__name">{clinicians[activeProfile].name}</h3>
+              <span className="profile-sidebar__role">{clinicians[activeProfile].role}</span>
+              {clinicians[activeProfile].bio.map((paragraph, i) => (
                 <p key={i} className="profile-sidebar__bio">{paragraph}</p>
               ))}
             </div>

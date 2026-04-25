@@ -194,6 +194,9 @@ export default function Navbar() {
         </nav>
 
         <div className="navbar__right">
+          <Link className="navbar__admin-link" to="/admin/login">
+            Admin Login
+          </Link>
           <Link className="navbar__cta" to="/contact">
             <span className="navbar__cta-text">Book Consultation</span>
             <span className="navbar__cta-text--short" aria-hidden="true">Book</span>
@@ -293,6 +296,9 @@ export default function Navbar() {
           )}
           <Link className="navbar__cta navbar__cta--mobile" to="/contact" onClick={closeMobileNav}>
             Book Consultation
+          </Link>
+          <Link className="navbar__cta navbar__cta--mobile navbar__cta--mobile-secondary" to="/admin/login" onClick={closeMobileNav}>
+            Admin Login
           </Link>
         </nav>
       </div>

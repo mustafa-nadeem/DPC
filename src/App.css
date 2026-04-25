@@ -194,6 +194,24 @@
   gap: 10px;
 }
 
+.navbar__admin-link {
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0 14px;
+  height: 39px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.navbar__admin-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .navbar__logo {
   display: flex;
   align-items: center;
@@ -302,6 +320,16 @@
 .navbar--scrolled .navbar__cta:hover {
   background: #0f2a50;
   border-color: #0f2a50;
+}
+
+.navbar--scrolled .navbar__admin-link {
+  border-color: #3878c4;
+  color: #dceeff;
+}
+
+.navbar--scrolled .navbar__admin-link:hover {
+  border-color: #69a2e4;
+  background: rgba(0, 132, 255, 0.15);
 }
 
 .navbar__menu-toggle {
@@ -3892,5 +3920,1278 @@
   .navbar__mobile-summary {
     padding: 12px 12px;
     font-size: 0.96rem;
+  }
+}
+
+/* Consultation flow scaffold */
+.consultation-page {
+  padding: clamp(36px, 6vw, 72px) 0 clamp(48px, 8vw, 88px);
+  background: linear-gradient(180deg, #0a0f17 0%, #0f1826 100%);
+}
+
+.consultation-page--admin {
+  min-height: calc(100vh - 70px);
+}
+
+.consultation-page__layout {
+  display: grid;
+  gap: 22px;
+}
+
+.consultation-page__hero,
+.consultation-panel {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: clamp(20px, 3.5vw, 34px);
+}
+
+.consultation-panel--single {
+  max-width: 1040px;
+}
+
+.consultation-page__eyebrow {
+  margin: 0 0 8px;
+  color: #6a7592;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.consultation-page__title {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+
+.consultation-page__subtitle {
+  margin: 14px 0 0;
+  color: #4b5563;
+  max-width: 70ch;
+  line-height: 1.55;
+}
+
+.consultation-page__actions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.consultation-page__primary,
+.consultation-page__secondary {
+  border: 1px solid #d7dbe5;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.92rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.consultation-page__primary {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+.consultation-page__secondary {
+  background: #f7f8fb;
+  color: #1f2937;
+}
+
+.consultation-form {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: #ffffff;
+  border-radius: 18px;
+  padding: clamp(20px, 3.5vw, 34px);
+}
+
+.consultation-form--stacked {
+  max-width: 520px;
+}
+
+.consultation-form__field {
+  display: grid;
+  gap: 8px;
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.consultation-form__field input,
+.consultation-form__field textarea,
+.consultation-form__field select,
+.consultation-detail-card textarea {
+  border: 1px solid #d6d9e2;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font: inherit;
+}
+
+.consultation-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.consultation-form__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.consultation-form__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.consultation-table {
+  margin-top: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.consultation-table__head,
+.consultation-table__row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.3fr 1fr 1.2fr 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  color: #1f2937;
+}
+
+.consultation-table__head {
+  background: #f8fafc;
+  font-size: 0.82rem;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.consultation-table__row {
+  text-decoration: none;
+  border-top: 1px solid #eef0f4;
+  font-size: 0.92rem;
+}
+
+.consultation-table__row--static {
+  color: #1f2937;
+}
+
+.consultation-detail-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.consultation-detail-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+  color: #1f2937;
+}
+
+.consultation-detail-card--full {
+  grid-column: 1 / -1;
+}
+
+.consultation-detail-card h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 860px) {
+  .consultation-form,
+  .consultation-detail-grid,
+  .consultation-table__head,
+  .consultation-table__row {
+    grid-template-columns: 1fr;
+  }
+
+  .consultation-table__head {
+    display: none;
+  }
+
+  .consultation-table__row {
+    gap: 6px;
+  }
+}
+
+.appointment-picker {
+  border: 1px solid #e8edf4;
+  border-radius: 14px;
+  background: #fcfeff;
+  padding: 12px;
+}
+
+.appointment-picker__header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.appointment-picker__title {
+  margin: 0;
+  color: #1f4f73;
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+}
+
+.appointment-picker__subtitle {
+  margin: 4px 0 0;
+  color: #5f6b7e;
+  font-size: 0.84rem;
+}
+
+.appointment-picker__card {
+  border: 1px solid #eaf0f8;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: clamp(12px, 2vw, 18px);
+}
+
+.appointment-picker__month-row {
+  margin-top: 2px;
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.appointment-picker__month {
+  text-align: center;
+  margin: 0;
+  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  font-weight: 700;
+  color: #25364a;
+}
+
+.appointment-picker__month-select {
+  display: grid;
+  gap: 4px;
+}
+
+.appointment-picker__month-label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.appointment-picker__month-select select {
+  border: 1px solid #d6dfeb;
+  border-radius: 9px;
+  height: 34px;
+  padding: 0 10px;
+  color: #223548;
+  background: #f9fcff;
+  font-size: 0.86rem;
+}
+
+.appointment-picker__days {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf1f7;
+}
+
+.appointment-picker__weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #7a8597;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 0;
+}
+
+.appointment-picker__day {
+  border: 1px solid #deebf7;
+  border-radius: 9px;
+  background: #f8fbff;
+  color: #3d4b61;
+  min-height: 40px;
+  padding: 6px;
+  display: grid;
+  place-items: center;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.appointment-picker__day strong {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: #27384d;
+}
+
+.appointment-picker__day--empty {
+  border: none;
+  background: transparent;
+  min-height: 40px;
+  padding: 0;
+}
+
+.appointment-picker__day.is-selected {
+  background: #1a77ae;
+  border-color: #1a77ae;
+}
+
+.appointment-picker__day.is-selected span,
+.appointment-picker__day.is-selected strong {
+  color: #ffffff;
+}
+
+.appointment-picker__day.is-disabled {
+  background: #f4f6f9;
+  border-color: #eceff4;
+  cursor: not-allowed;
+}
+
+.appointment-picker__day.is-disabled strong {
+  color: #b0b8c5;
+}
+
+.appointment-picker__times {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.appointment-picker__time {
+  border: 1px solid #dfe9f4;
+  border-radius: 999px;
+  background: #edf5fd;
+  color: #1e628e;
+  padding: 8px 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.appointment-picker__time.is-selected {
+  background: #9ad1f2;
+  border-color: #79bde8;
+  color: #0e486d;
+}
+
+.appointment-picker__empty {
+  margin: 0;
+  padding: 8px 2px;
+  color: #6b7280;
+  font-size: 0.86rem;
+}
+
+.appointment-picker__location-note {
+  margin-top: 10px;
+  color: #5a667a;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 860px) {
+  .appointment-picker__month-row {
+    grid-template-columns: 1fr;
+  }
+
+  .appointment-picker__month {
+    text-align: left;
+  }
+
+  .appointment-picker__days {
+    gap: 6px;
+  }
+}
+
+.consultation-form--compact {
+  grid-template-columns: 1fr;
+}
+
+.consultation-form__actions--end {
+  justify-content: flex-end;
+}
+
+.consultation-page__primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.booking-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.booking-details__form {
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.booking-details__section-title {
+  margin: 6px 0 0;
+  color: #1f4f73;
+  font-size: 1rem;
+}
+
+.booking-details__counter {
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+.booking-details__summary {
+  position: sticky;
+  top: 88px;
+}
+
+.booking-details__summary-card {
+  background: #eef6fd;
+  border: 1px solid #dbe9f6;
+  border-radius: 12px;
+  padding: 14px;
+  color: #233548;
+  font-size: 0.86rem;
+}
+
+.booking-details__summary-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.booking-details__summary-card p {
+  margin: 6px 0;
+}
+
+.booking-details__privacy-note {
+  margin: 10px 2px 0;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 980px) {
+  .booking-details {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-details__summary {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .booking-details__form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.booking-confirmation {
+  width: min(860px, 100%);
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 18px;
+  padding: clamp(20px, 4vw, 34px);
+  margin: 0 auto;
+  box-shadow: 0 14px 36px rgba(11, 20, 37, 0.2);
+}
+
+.booking-confirmation__eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7b8597;
+  font-weight: 600;
+}
+
+.booking-confirmation__title {
+  margin: 0;
+  color: #1a2638;
+  font-size: clamp(1.45rem, 3.2vw, 2.15rem);
+}
+
+.booking-confirmation__text {
+  margin: 12px 0 0;
+  color: #4d586b;
+  line-height: 1.6;
+  max-width: 65ch;
+}
+
+.booking-confirmation__actions {
+  margin-top: 22px;
+}
+
+.booking-confirmation__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 11px;
+  border: 1px solid #d6deea;
+  background: #f8fafe;
+  color: #1f3f60;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .booking-confirmation {
+    border-radius: 14px;
+    padding: 18px 14px;
+  }
+
+  .booking-confirmation__button {
+    width: 100%;
+  }
+}
+
+.admin-login__error {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.88rem;
+}
+
+.admin-login__hint {
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed #d5dde8;
+  border-radius: 10px;
+  color: #4f5d72;
+  background: #f8fbff;
+  font-size: 0.83rem;
+}
+
+.navbar__cta--mobile-secondary {
+  margin-top: 8px;
+  border-color: rgba(173, 208, 255, 0.5);
+  color: #dcebff;
+}
+
+@media (max-width: 1120px) {
+  .navbar__admin-link {
+    display: none;
+  }
+}
+
+.admin-header {
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 14px;
+  padding: clamp(14px, 2.5vw, 20px);
+  display: grid;
+  gap: 14px;
+}
+
+.admin-header__eyebrow {
+  margin: 0 0 6px;
+  color: #62708a;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-header__title {
+  margin: 0;
+  color: #1b2a3d;
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+}
+
+.admin-header__subtitle {
+  margin: 8px 0 0;
+  color: #566379;
+  line-height: 1.5;
+}
+
+.admin-header__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-header__nav-item {
+  text-decoration: none;
+  border: 1px solid #dbe3ef;
+  color: #30445e;
+  border-radius: 999px;
+  height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  background: #f8fbff;
+}
+
+.admin-header__nav-item.is-active {
+  background: #1f6fa2;
+  border-color: #1f6fa2;
+  color: #ffffff;
+}
+
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.admin-kpi-card__label {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #71809b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.admin-kpi-card__value {
+  margin: 8px 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1d3147;
+}
+
+.admin-kpi-card__meta {
+  margin: 4px 0 0;
+  color: #607086;
+  font-size: 0.82rem;
+}
+
+.admin-surface {
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 14px;
+  padding: clamp(12px, 2.2vw, 18px);
+  display: grid;
+  gap: 14px;
+}
+
+.admin-surface--sticky {
+  position: sticky;
+  top: 86px;
+  align-self: start;
+}
+
+.admin-toolbar {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-toolbar__search {
+  border: 1px solid #d7dfeb;
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+}
+
+.admin-toolbar__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-chip {
+  border: 1px solid #dce4ef;
+  background: #f8fbff;
+  color: #32485f;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.admin-chip.is-active {
+  background: #1f6fa2;
+  border-color: #1f6fa2;
+  color: #ffffff;
+}
+
+.admin-table {
+  border: 1px solid #e6ebf2;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-table__head,
+.admin-table__row {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr 1.1fr 1fr 1fr 1.2fr;
+  gap: 10px;
+  padding: 12px 14px;
+  align-items: center;
+}
+
+.admin-table__head {
+  background: #f5f8fc;
+  color: #6e7b90;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.admin-table__row {
+  text-decoration: none;
+  border-top: 1px solid #edf1f6;
+  color: #2a3d54;
+  font-size: 0.88rem;
+}
+
+.admin-table__row--static {
+  color: #2a3d54;
+}
+
+.admin-table__actions {
+  justify-content: flex-start;
+}
+
+.admin-table--payments .admin-table__head,
+.admin-table--payments .admin-table__row {
+  grid-template-columns: 0.85fr 0.95fr 0.85fr 1fr 0.9fr 0.9fr 1.2fr;
+}
+
+.admin-status-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: #e9f4ff;
+  color: #1f5f88;
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.admin-request-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.8fr);
+  gap: 14px;
+}
+
+.admin-section {
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-section__title {
+  margin: 0;
+  font-size: 1.02rem;
+  color: #1e334b;
+}
+
+.admin-request-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  color: #33455c;
+  font-size: 0.9rem;
+}
+
+.admin-request-grid__full {
+  grid-column: 1 / -1;
+}
+
+.admin-history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-history__item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.admin-history__time {
+  font-size: 0.78rem;
+  color: #73839a;
+  font-weight: 700;
+}
+
+.admin-history__label {
+  margin: 0;
+  color: #2d4259;
+}
+
+.admin-history__meta {
+  margin: 2px 0 0;
+  color: #7a879a;
+  font-size: 0.78rem;
+}
+
+.admin-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-calendar-card {
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-calendar-card__meta {
+  margin: 0;
+  color: #72829a;
+  font-size: 0.8rem;
+}
+
+.admin-calendar-card h2 {
+  margin: 0;
+  color: #1e334b;
+  font-size: 1.05rem;
+}
+
+.admin-slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-slot-chip {
+  border: 1px solid #d9e7f5;
+  background: #f2f8ff;
+  color: #245b85;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.admin-availability-add-date {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-slot-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-slot-editor__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-slot-editor__capacity {
+  display: grid;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: #566379;
+}
+
+.admin-slot-editor__capacity input {
+  height: 34px;
+  border: 1px solid #d7dfeb;
+  border-radius: 8px;
+  padding: 0 8px;
+}
+
+.admin-slot-editor__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #3f4f66;
+}
+
+.admin-slot-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-slot-add input {
+  height: 36px;
+  border: 1px solid #d7dfeb;
+  border-radius: 8px;
+  padding: 0 8px;
+}
+
+.admin-login-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.admin-login-panel {
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 14px;
+  padding: clamp(14px, 2.5vw, 22px);
+}
+
+.admin-login-panel--info {
+  background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
+}
+
+.admin-login-checklist {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  color: #3d4f66;
+  line-height: 1.6;
+}
+
+@media (max-width: 1120px) {
+  .admin-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-request-layout,
+  .admin-login-layout,
+  .admin-grid-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-surface--sticky {
+    position: static;
+  }
+}
+
+@media (max-width: 860px) {
+  .admin-table {
+    border: none;
+  }
+
+  .admin-table__head {
+    display: none;
+  }
+
+  .admin-table__row,
+  .admin-table--payments .admin-table__row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    border: 1px solid #e6ebf2;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    padding: 12px;
+  }
+
+  .admin-table__actions {
+    justify-content: flex-start;
+  }
+
+  .admin-request-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-slot-editor__row {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+}
+
+.admin-portal {
+  min-height: 100vh;
+  background: #f4f6fa;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+}
+
+.admin-portal__sidebar {
+  background: #0f172a;
+  color: #cdd8ea;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 16px 14px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 14px;
+}
+
+.admin-portal__brand-title {
+  margin: 0;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.admin-portal__brand-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #93a4be;
+}
+
+.admin-portal__page-context {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.62);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.admin-portal__page-title {
+  margin: 0;
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.admin-portal__page-subtitle {
+  margin: 4px 0 0;
+  color: #93a4be;
+  font-size: 0.78rem;
+}
+
+.admin-portal__nav {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.admin-portal__nav-link {
+  text-decoration: none;
+  color: #c7d2e5;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-portal__nav-link.is-active {
+  background: #1e293b;
+  border-color: #334155;
+  color: #ffffff;
+}
+
+.admin-portal__nav-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9fb5d6;
+  flex-shrink: 0;
+}
+
+.admin-portal__nav-link.is-active .admin-portal__nav-icon {
+  background: rgba(255, 255, 255, 0.08);
+  color: #dbeafe;
+  border-color: rgba(191, 219, 254, 0.3);
+}
+
+.admin-portal__sidebar-footer {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-portal__home-link,
+.admin-portal__logout {
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #111c30;
+  color: #dbe7fb;
+  padding: 9px 10px;
+  font-size: 0.84rem;
+  text-decoration: none;
+  text-align: center;
+}
+
+.admin-portal__logout {
+  cursor: pointer;
+}
+
+.admin-portal__content {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.admin-portal__topbar {
+  background: #ffffff;
+  border: 1px solid #e6ebf2;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-portal__topbar-label {
+  margin: 0;
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.admin-portal__topbar-meta {
+  margin: 2px 0 0;
+  color: #66758d;
+  font-size: 0.8rem;
+}
+
+.admin-portal__badge {
+  border: 1px solid #d8e1ee;
+  background: #f8fbff;
+  color: #325377;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.admin-page {
+  display: grid;
+}
+
+.admin-page__stack {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-grid--dashboard {
+  grid-template-columns: 1.4fr 0.8fr;
+}
+
+.admin-grid--availability {
+  grid-template-columns: 1.5fr 0.8fr;
+}
+
+.admin-surface__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-surface__title {
+  margin: 0;
+  color: #1f334a;
+  font-size: 1rem;
+}
+
+.admin-segment {
+  border: 1px solid #d7e0ec;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 2px;
+  display: inline-flex;
+  gap: 2px;
+}
+
+.admin-segment__item {
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #566883;
+}
+
+.admin-segment__item.is-active {
+  background: #ffffff;
+  color: #214666;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.admin-schedule-list,
+.admin-clinician-list {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-schedule-item {
+  border: 1px solid #e8edf4;
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-schedule-item__time {
+  margin: 0;
+  font-weight: 700;
+  color: #234566;
+}
+
+.admin-schedule-item__title {
+  margin: 0;
+  color: #243a53;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.admin-schedule-item__meta {
+  margin: 2px 0 0;
+  color: #6a788e;
+  font-size: 0.8rem;
+}
+
+.admin-clinician-card {
+  border: 1px solid #e8edf4;
+  border-radius: 10px;
+  background: #f9fbfe;
+  padding: 10px;
+}
+
+.admin-clinician-card h3 {
+  margin: 0;
+  color: #23364d;
+  font-size: 0.92rem;
+}
+
+.admin-clinician-card p {
+  margin: 4px 0 0;
+  color: #5c6c82;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1080px) {
+  .admin-portal {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-portal__sidebar {
+    grid-template-rows: auto;
+  }
+
+  .admin-grid--dashboard,
+  .admin-grid--availability {
+    grid-template-columns: 1fr;
   }
 }
