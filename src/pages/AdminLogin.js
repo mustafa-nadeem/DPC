@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, isAdminAuthenticated, setAdminAuthenticated } from '../utils/adminAuth';
+import { getAdminSession, loginAdmin } from '../utils/adminAuth';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -8,9 +8,14 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isAdminAuthenticated()) {
-      navigate('/admin/dashboard', { replace: true });
-    }
+    let mounted = true;
+    getAdminSession().then((user) => {
+      if (!mounted) return;
+      if (user) navigate('/admin/dashboard', { replace: true });
+    });
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   const onChange = (event) => {
@@ -19,16 +24,14 @@ export default function AdminLogin() {
     if (error) setError('');
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
-    const email = credentials.email.trim().toLowerCase();
-    const password = credentials.password;
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      setAdminAuthenticated(true);
+    try {
+      await loginAdmin(credentials.email.trim().toLowerCase(), credentials.password);
       navigate('/admin/dashboard');
-      return;
+    } catch (submitError) {
+      setError(submitError.message || 'Invalid email or password.');
     }
-    setError('Invalid email or password.');
   };
 
   return (
@@ -68,9 +71,6 @@ export default function AdminLogin() {
               </div>
             </form>
 
-            <div className="admin-login__hint">
-              Temp login (for testing): <strong>{ADMIN_EMAIL}</strong> / <strong>{ADMIN_PASSWORD}</strong>
-            </div>
           </div>
         </div>
       </div>

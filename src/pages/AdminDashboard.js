@@ -1,14 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
-
-const requests = [
-  { id: 'REQ-1042', patient: 'Sarah Bennett', status: 'Submitted', category: 'New Enquiry', submitted: 'Today, 08:12', action: 'Review and categorise' },
-  { id: 'REQ-1041', patient: 'Michael Khan', status: 'Under Review', category: 'Urgent', submitted: 'Today, 07:40', action: 'Call patient' },
-  { id: 'REQ-1040', patient: 'Olivia Shaw', status: 'Payment Pending', category: 'Follow-up', submitted: 'Yesterday', action: 'Send payment link' },
-  { id: 'REQ-1039', patient: 'Daniel Green', status: 'Appointment Proposed', category: 'Routine', submitted: 'Yesterday', action: 'Confirm slot' },
-  { id: 'REQ-1038', patient: 'Lucy Dean', status: 'Awaiting More Information', category: 'New Enquiry', submitted: '2 days ago', action: 'Await response' },
-];
+import { apiFetch } from '../utils/apiClient';
 
 const scheduleItems = [
   { time: '09:00', patient: 'Richard Hartley', clinician: 'Dr Kazeem Salako', type: 'Follow-up', location: 'Three Shires Hospital' },
@@ -19,10 +12,56 @@ const scheduleItems = [
 
 export default function AdminDashboard() {
   const [viewMode, setViewMode] = useState('day');
-  const submittedCount = requests.filter((request) => request.status === 'Submitted').length;
-  const reviewCount = requests.filter((request) => request.status === 'Under Review').length;
-  const paymentPendingCount = requests.filter((request) => request.status === 'Payment Pending').length;
+  const [requests, setRequests] = useState([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const submittedCount = requests.filter((request) => request.status === 'SUBMITTED').length;
+  const reviewCount = requests.filter((request) => request.status === 'UNDER REVIEW').length;
+  const paymentPendingCount = requests.filter((request) => request.status === 'PAYMENT PENDING').length;
   const scheduleTitle = useMemo(() => (viewMode === 'day' ? 'Today schedule' : 'Week schedule'), [viewMode]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function run() {
+      try {
+        setLoading(true);
+        const payload = await apiFetch('/admin/requests');
+        if (!mounted) return;
+        setRequests(
+          (payload.requests || []).map((request) => ({
+            id: request.id,
+            publicId: request.publicId,
+            patient: `${request.firstName} ${request.surname}`.trim(),
+            status: request.status.replaceAll('_', ' '),
+            category: request.category.replaceAll('_', ' '),
+            submitted: new Date(request.createdAt).toLocaleString(),
+            action: 'Review and categorise',
+          }))
+        );
+        setError('');
+      } catch (loadError) {
+        if (!mounted) return;
+        setError(loadError.message || 'Failed to load requests');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const filteredRequests = useMemo(() => {
+    if (!search.trim()) return requests;
+    const q = search.toLowerCase();
+    return requests.filter(
+      (request) =>
+        request.patient.toLowerCase().includes(q) ||
+        request.publicId.toLowerCase().includes(q)
+    );
+  }, [requests, search]);
 
   return (
     <section className="admin-page">
@@ -111,10 +150,14 @@ export default function AdminDashboard() {
         </div>
 
         <div className="admin-surface">
+          {loading && <p className="consultation-page__subtitle">Loading requests...</p>}
+          {error && <p className="admin-login__error">{error}</p>}
           <div className="admin-toolbar">
             <input
               className="admin-toolbar__search"
               placeholder="Search by patient, request ID, or contact..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
             />
             <div className="admin-toolbar__chips">
               <button type="button" className="admin-chip is-active">All</button>
@@ -133,9 +176,9 @@ export default function AdminDashboard() {
               <span>Submitted</span>
               <span>Next action</span>
             </div>
-            {requests.map((request) => (
+            {filteredRequests.map((request) => (
               <Link key={request.id} to={`/admin/requests/${request.id}`} className="admin-table__row">
-                <span>{request.id}</span>
+                <span>{request.publicId}</span>
                 <span>{request.patient}</span>
                 <span><em className="admin-status-tag">{request.status}</em></span>
                 <span>{request.category}</span>

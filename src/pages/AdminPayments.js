@@ -1,13 +1,72 @@
 import AdminHeader from '../components/AdminHeader';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { apiFetch } from '../utils/apiClient';
 
-const payments = [
-  { id: 'REQ-1042', patient: 'Sarah Bennett', amount: 'GBP 95.00', status: 'Payment Pending', method: 'Stripe link', updated: 'Today 09:08' },
-  { id: 'REQ-1041', patient: 'Michael Khan', amount: 'GBP 120.00', status: 'Confirmed', method: 'Stripe paid', updated: 'Today 08:02' },
-  { id: 'REQ-1040', patient: 'Olivia Shaw', amount: 'GBP 95.00', status: 'Payment Pending', method: 'Stripe link', updated: 'Yesterday' },
-  { id: 'REQ-1037', patient: 'Anya Patel', amount: 'GBP 200.00', status: 'Declined', method: 'N/A', updated: 'Yesterday' },
-];
+const formatMoney = (minor, currency = 'GBP') => `${currency.toUpperCase()} ${(Number(minor || 0) / 100).toFixed(2)}`;
 
-export default function AdminPayments() {
+export default function AdminPayments({ user }) {
+  const [payments, setPayments] = useState([]);
+  const [summary, setSummary] = useState({ paidMinor: 0, pendingMinor: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const canManage = user?.role === 'ADMIN' || user?.role === 'SECRETARY';
+
+  const paidToday = useMemo(() => formatMoney(summary.paidMinor), [summary.paidMinor]);
+  const pendingAmount = useMemo(() => formatMoney(summary.pendingMinor), [summary.pendingMinor]);
+  const overdue = useMemo(
+    () => payments.filter((payment) => payment.status === 'PENDING').length,
+    [payments]
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        const payload = await apiFetch('/admin/payments');
+        if (!mounted) return;
+        setPayments(payload.payments || []);
+        setSummary(payload.summary || { paidMinor: 0, pendingMinor: 0 });
+        setError('');
+      } catch (loadError) {
+        if (!mounted) return;
+        setError(loadError.message || 'Failed to load payments');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleSendPaymentLink = async (requestId) => {
+    try {
+      const payload = await apiFetch(`/admin/requests/${requestId}/payment-link`, {
+        method: 'POST',
+        body: JSON.stringify({
+          amountMinor: 20000,
+          currency: 'gbp',
+        }),
+      });
+      if (payload.paymentLinkUrl) {
+        setSuccess(`Payment link created: ${payload.paymentLinkUrl}`);
+        window.open(payload.paymentLinkUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        setSuccess('Payment link created successfully.');
+      }
+      const refreshed = await apiFetch('/admin/payments');
+      setPayments(refreshed.payments || []);
+      setSummary(refreshed.summary || { paidMinor: 0, pendingMinor: 0 });
+      setError('');
+    } catch (sendError) {
+      setError(sendError.message || 'Failed to send payment link');
+    }
+  };
+
   return (
     <section className="admin-page">
       <div className="admin-page__stack">
@@ -19,22 +78,25 @@ export default function AdminPayments() {
         <section className="admin-kpis">
           <article className="admin-kpi-card">
             <p className="admin-kpi-card__label">Paid today</p>
-            <p className="admin-kpi-card__value">GBP 120</p>
-            <p className="admin-kpi-card__meta">1 confirmed payment</p>
+            <p className="admin-kpi-card__value">{paidToday}</p>
+            <p className="admin-kpi-card__meta">Confirmed payments total</p>
           </article>
           <article className="admin-kpi-card">
             <p className="admin-kpi-card__label">Pending amount</p>
-            <p className="admin-kpi-card__value">GBP 190</p>
-            <p className="admin-kpi-card__meta">2 links awaiting payment</p>
+            <p className="admin-kpi-card__value">{pendingAmount}</p>
+            <p className="admin-kpi-card__meta">Links awaiting payment</p>
           </article>
           <article className="admin-kpi-card">
             <p className="admin-kpi-card__label">Overdue links</p>
-            <p className="admin-kpi-card__value">1</p>
+            <p className="admin-kpi-card__value">{overdue}</p>
             <p className="admin-kpi-card__meta">Needs follow-up</p>
           </article>
         </section>
 
         <div className="admin-surface">
+          {loading && <p className="consultation-page__subtitle">Loading payments...</p>}
+          {error && <p className="admin-login__error">{error}</p>}
+          {success && <p className="consultation-page__subtitle">{success}</p>}
           <div className="admin-toolbar">
             <input className="admin-toolbar__search" placeholder="Search payment by request or patient..." />
             <div className="admin-toolbar__chips">
@@ -56,15 +118,19 @@ export default function AdminPayments() {
             </div>
             {payments.map((payment) => (
               <div key={payment.id} className="admin-table__row admin-table__row--static">
-                <span>{payment.id}</span>
-                <span>{payment.patient}</span>
-                <span>{payment.amount}</span>
-                <span><em className="admin-status-tag">{payment.status}</em></span>
-                <span>{payment.method}</span>
-                <span>{payment.updated}</span>
+                <span>{payment.request?.publicId || '-'}</span>
+                <span>{payment.request ? `${payment.request.firstName} ${payment.request.surname}` : '-'}</span>
+                <span>{formatMoney(payment.amountMinor, payment.currency)}</span>
+                <span><em className="admin-status-tag">{payment.status.replaceAll('_', ' ')}</em></span>
+                <span>{payment.provider}</span>
+                <span>{new Date(payment.updatedAt).toLocaleString()}</span>
                 <div className="consultation-form__actions admin-table__actions">
-                  <button type="button" className="consultation-page__secondary">Open case</button>
-                  <button type="button" className="consultation-page__primary">Send link</button>
+                  <Link className="consultation-page__secondary" to={`/admin/requests/${payment.requestId}`}>Open case</Link>
+                  {canManage && (
+                    <button type="button" className="consultation-page__primary" onClick={() => handleSendPaymentLink(payment.requestId)}>
+                      Send link
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

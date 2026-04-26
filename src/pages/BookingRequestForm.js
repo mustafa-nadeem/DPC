@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SiteFooter from '../components/SiteFooter';
 import { loadAvailability } from '../utils/availabilityStore';
@@ -17,7 +17,10 @@ const buildScheduleByMonth = (availability) => {
     }
     const availableSlots = day.slots
       .filter((slot) => slot.enabled && Number(slot.capacity) > 0)
-      .map((slot) => `${slot.time} (${slot.capacity} left)`);
+      .map((slot) => ({
+        value: slot.time,
+        label: `${slot.time} (${slot.capacity} left)`,
+      }));
     acc[monthKey].dates.push({
       value: day.date,
       day: dayFormatter.format(dateObj),
@@ -60,14 +63,45 @@ const buildCalendarDays = (monthKey, availableDateValues) => {
 
 export default function BookingRequestForm() {
   const navigate = useNavigate();
-  const scheduleByMonth = buildScheduleByMonth(loadAvailability());
-  const monthKeys = Object.keys(scheduleByMonth);
+  const [availability, setAvailability] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const scheduleByMonth = useMemo(() => buildScheduleByMonth(availability), [availability]);
+  const monthKeys = useMemo(() => Object.keys(scheduleByMonth), [scheduleByMonth]);
   const [selectedMonth, setSelectedMonth] = useState(monthKeys[0] || '');
   const [selection, setSelection] = useState({
     preferredDate: '',
     preferredTime: '',
   });
   const selectedMonthData = scheduleByMonth[selectedMonth] || { label: '', dates: [] };
+  useEffect(() => {
+    let mounted = true;
+    async function bootstrap() {
+      try {
+        setLoading(true);
+        const data = await loadAvailability();
+        if (!mounted) return;
+        setAvailability(data);
+      } catch (error) {
+        if (!mounted) return;
+        setLoadError(error.message || 'Unable to load availability');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    bootstrap();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!monthKeys.length) return;
+    if (!selectedMonth || !scheduleByMonth[selectedMonth]) {
+      setSelectedMonth(monthKeys[0]);
+    }
+  }, [monthKeys, scheduleByMonth, selectedMonth]);
+
   const availableDateValues = new Set(selectedMonthData.dates.map((date) => date.value));
   const calendarDays = buildCalendarDays(selectedMonth, availableDateValues);
   const selectedDateData = selectedMonthData.dates.find((date) => date.value === selection.preferredDate) || null;
@@ -168,12 +202,12 @@ export default function BookingRequestForm() {
                   ) : availableTimes.length > 0 ? (
                     availableTimes.map((time) => (
                       <button
-                        key={time}
+                        key={time.value}
                         type="button"
-                        className={`appointment-picker__time ${selection.preferredTime === time ? 'is-selected' : ''}`}
-                        onClick={() => setSelection((prev) => ({ ...prev, preferredTime: time }))}
+                        className={`appointment-picker__time ${selection.preferredTime === time.value ? 'is-selected' : ''}`}
+                        onClick={() => setSelection((prev) => ({ ...prev, preferredTime: time.value }))}
                       >
-                        {time}
+                        {time.label}
                       </button>
                     ))
                   ) : (
@@ -189,6 +223,8 @@ export default function BookingRequestForm() {
               </div>
             </section>
             <div className="consultation-form__field--full consultation-form__actions consultation-form__actions--end">
+              {loading && <p className="consultation-page__subtitle">Loading available slots...</p>}
+              {loadError && <p className="admin-login__error">{loadError}</p>}
               <button
                 type="button"
                 className="consultation-page__primary"

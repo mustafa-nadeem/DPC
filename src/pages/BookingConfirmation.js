@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import SiteFooter from '../components/SiteFooter';
 
 export default function BookingConfirmation() {
+  const { state } = useLocation();
+  const requestPublicId = state?.requestPublicId || '';
+
   return (
     <>
       <section className="consultation-page">
@@ -13,6 +17,11 @@ export default function BookingConfirmation() {
               Thank you. Your consultation request has been submitted successfully.
               The clinic team will review your details and come back with next steps.
             </p>
+            {requestPublicId && (
+              <p className="booking-confirmation__text">
+                Reference: <strong>{requestPublicId}</strong>
+              </p>
+            )}
             <div className="booking-confirmation__actions">
               <Link className="booking-confirmation__button" to="/contact">
                 Back to booking home

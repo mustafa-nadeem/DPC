@@ -1,16 +1,25 @@
 import AdminHeader from '../components/AdminHeader';
-import { useMemo, useState } from 'react';
-import { loadAvailability, saveAvailability } from '../utils/availabilityStore';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  addAvailabilitySlot,
+  deleteAvailabilitySlot,
+  loadAdminAvailability,
+  saveAvailabilityDay,
+  updateAvailabilitySlot,
+} from '../utils/availabilityStore';
 
 const formatDateLabel = (date) =>
   new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: '2-digit', month: 'short' })
     .format(new Date(`${date}T00:00:00`));
 
-export default function AdminAvailability() {
-  const [availability, setAvailability] = useState(loadAvailability);
+export default function AdminAvailability({ user }) {
+  const [availability, setAvailability] = useState([]);
   const [newDate, setNewDate] = useState('');
   const [newSlotByDate, setNewSlotByDate] = useState({});
   const [viewMode, setViewMode] = useState('week');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARY';
 
   const totals = useMemo(() => {
     const enabledSlots = availability.flatMap((day) => day.slots).filter((slot) => slot.enabled);
@@ -19,49 +28,66 @@ export default function AdminAvailability() {
     return { openSlots, totalCapacity, dayCount: availability.length };
   }, [availability]);
 
-  const persist = (next) => {
-    setAvailability(next);
-    saveAvailability(next);
+  const refreshAvailability = async () => {
+    setLoading(true);
+    try {
+      const data = await loadAdminAvailability();
+      setAvailability(data);
+      setError('');
+    } catch (loadError) {
+      setError(loadError.message || 'Failed to load availability');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateSlot = (date, time, updater) => {
-    const next = availability.map((day) => {
-      if (day.date !== date) return day;
-      return {
-        ...day,
-        slots: day.slots.map((slot) => {
-          if (slot.time !== time) return slot;
-          return { ...slot, ...updater(slot) };
-        }),
-      };
-    });
-    persist(next);
+  useEffect(() => {
+    refreshAvailability();
+  }, []);
+
+  const updateSlot = async (slotId, patch) => {
+    if (!canEdit) return;
+    try {
+      await updateAvailabilitySlot(slotId, patch);
+      await refreshAvailability();
+    } catch (updateError) {
+      setError(updateError.message || 'Failed to update slot');
+    }
   };
 
-  const addDate = () => {
+  const addDate = async () => {
+    if (!canEdit) return;
     if (!newDate || availability.some((day) => day.date === newDate)) return;
-    const next = [...availability, { date: newDate, slots: [] }].sort((a, b) => a.date.localeCompare(b.date));
-    persist(next);
-    setNewDate('');
+    try {
+      await saveAvailabilityDay(newDate, []);
+      setNewDate('');
+      await refreshAvailability();
+    } catch (saveError) {
+      setError(saveError.message || 'Failed to add date');
+    }
   };
 
-  const addSlot = (date) => {
+  const addSlot = async (date) => {
+    if (!canEdit) return;
     const slotTime = (newSlotByDate[date] || '').trim();
     if (!slotTime) return;
-    const next = availability.map((day) => {
-      if (day.date !== date || day.slots.some((slot) => slot.time === slotTime)) return day;
-      return { ...day, slots: [...day.slots, { time: slotTime, capacity: 1, enabled: true }] };
-    });
-    persist(next);
-    setNewSlotByDate((prev) => ({ ...prev, [date]: '' }));
+    try {
+      await addAvailabilitySlot(date, { time: slotTime, capacity: 1, enabled: true });
+      setNewSlotByDate((prev) => ({ ...prev, [date]: '' }));
+      await refreshAvailability();
+    } catch (slotError) {
+      setError(slotError.message || 'Failed to add slot');
+    }
   };
 
-  const removeSlot = (date, time) => {
-    const next = availability.map((day) => {
-      if (day.date !== date) return day;
-      return { ...day, slots: day.slots.filter((slot) => slot.time !== time) };
-    });
-    persist(next);
+  const removeSlot = async (slotId) => {
+    if (!canEdit) return;
+    try {
+      await deleteAvailabilitySlot(slotId);
+      await refreshAvailability();
+    } catch (removeError) {
+      setError(removeError.message || 'Failed to remove slot');
+    }
   };
 
   return (
@@ -91,6 +117,8 @@ export default function AdminAvailability() {
         </section>
 
         <div className="admin-surface">
+          {loading && <p className="consultation-page__subtitle">Loading availability...</p>}
+          {error && <p className="admin-login__error">{error}</p>}
           <div className="admin-toolbar">
             <div className="admin-segment">
               <button
@@ -114,8 +142,9 @@ export default function AdminAvailability() {
                 type="date"
                 value={newDate}
                 onChange={(event) => setNewDate(event.target.value)}
+                disabled={!canEdit}
               />
-              <button type="button" className="consultation-page__primary" onClick={addDate}>
+              <button type="button" className="consultation-page__primary" onClick={addDate} disabled={!canEdit}>
                 Add date
               </button>
             </div>
@@ -138,10 +167,11 @@ export default function AdminAvailability() {
                           min="0"
                           value={slot.capacity}
                           onChange={(event) =>
-                            updateSlot(day.date, slot.time, () => ({
+                            updateSlot(slot.id, {
                               capacity: Math.max(0, Number(event.target.value) || 0),
-                            }))
+                            })
                           }
+                          disabled={!canEdit}
                         />
                       </label>
                       <label className="admin-slot-editor__toggle">
@@ -149,15 +179,17 @@ export default function AdminAvailability() {
                           type="checkbox"
                           checked={slot.enabled}
                           onChange={(event) =>
-                            updateSlot(day.date, slot.time, () => ({ enabled: event.target.checked }))
+                            updateSlot(slot.id, { enabled: event.target.checked })
                           }
+                          disabled={!canEdit}
                         />
                         Enabled
                       </label>
                       <button
                         type="button"
                         className="consultation-page__secondary"
-                        onClick={() => removeSlot(day.date, slot.time)}
+                        onClick={() => removeSlot(slot.id)}
+                        disabled={!canEdit}
                       >
                         Remove
                       </button>
@@ -171,8 +203,9 @@ export default function AdminAvailability() {
                     onChange={(event) =>
                       setNewSlotByDate((prev) => ({ ...prev, [day.date]: event.target.value }))
                     }
+                    disabled={!canEdit}
                   />
-                  <button type="button" className="consultation-page__primary" onClick={() => addSlot(day.date)}>
+                  <button type="button" className="consultation-page__primary" onClick={() => addSlot(day.date)} disabled={!canEdit}>
                     Add slot
                   </button>
                 </div>

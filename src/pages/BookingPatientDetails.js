@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import SiteFooter from '../components/SiteFooter';
+import { apiFetch } from '../utils/apiClient';
 
 const formatUkDateInput = (value) => {
   const digits = value.replace(/\D/g, '').slice(0, 8);
@@ -28,6 +29,8 @@ export default function BookingPatientDetails() {
     reason: '',
     consent: false,
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -38,13 +41,33 @@ export default function BookingPatientDetails() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!preferredDate || !preferredTime) {
       navigate('/booking/request');
       return;
     }
-    navigate('/booking/confirmation');
+    try {
+      setSubmitting(true);
+      setSubmitError('');
+      const payload = await apiFetch('/public/requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...form,
+          preferredDate,
+          preferredTime,
+        }),
+      });
+      navigate('/booking/confirmation', {
+        state: {
+          requestPublicId: payload.request?.publicId || '',
+        },
+      });
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to submit request');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!preferredDate || !preferredTime) {
@@ -171,7 +194,10 @@ export default function BookingPatientDetails() {
               </label>
 
               <div className="consultation-form__actions consultation-form__field--full consultation-form__actions--end">
-                <button type="submit" className="consultation-page__primary">Book my appointment</button>
+                {submitError && <p className="admin-login__error">{submitError}</p>}
+                <button type="submit" className="consultation-page__primary" disabled={submitting}>
+                  {submitting ? 'Submitting...' : 'Book my appointment'}
+                </button>
               </div>
             </form>
 

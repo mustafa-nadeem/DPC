@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { setAdminAuthenticated } from '../utils/adminAuth';
+import { logoutAdmin } from '../utils/adminAuth';
 
 const navItems = [
   {
@@ -31,17 +31,21 @@ const navItems = [
   },
 ];
 
-export default function AdminShell() {
+export default function AdminShell({ user }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const activeItem = navItems.find((item) => location.pathname.startsWith(item.to));
+  const allowedNavItems = navItems.filter((item) => {
+    if (item.to === '/admin/payments' && user?.role === 'CLINICIAN') return false;
+    return true;
+  });
+  const activeItem = allowedNavItems.find((item) => location.pathname.startsWith(item.to));
   const pageTitle = activeItem?.label || 'Admin';
   const pageSubtitle = location.pathname.startsWith('/admin/requests/')
     ? 'Request review'
     : 'Secretary operations';
 
-  const handleLogout = () => {
-    setAdminAuthenticated(false);
+  const handleLogout = async () => {
+    await logoutAdmin();
     navigate('/admin/login');
   };
 
@@ -59,7 +63,7 @@ export default function AdminShell() {
         </div>
 
         <nav className="admin-portal__nav" aria-label="Admin portal navigation">
-          {navItems.map((item) => (
+          {allowedNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -86,7 +90,7 @@ export default function AdminShell() {
             <p className="admin-portal__topbar-meta">Admin booking and review portal</p>
           </div>
           <div className="admin-portal__topbar-right">
-            <span className="admin-portal__badge">Secretary</span>
+            <span className="admin-portal__badge">{user?.role || 'User'}</span>
           </div>
         </div>
         <Outlet />
