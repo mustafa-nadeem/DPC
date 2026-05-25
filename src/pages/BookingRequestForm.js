@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SiteFooter from '../components/SiteFooter';
-import { loadAvailability } from '../utils/availabilityStore';
+import { useClinicAvailability } from '../hooks/useClinicAvailability';
+import { getReviewModeFallbackAvailability } from '../utils/availabilityStore';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
+import { CLINIC_ADDRESS_FOR_BOOKING } from '../config/clinicAddress';
 
 const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -60,13 +63,32 @@ const buildCalendarDays = (monthKey, availableDateValues) => {
 
 export default function BookingRequestForm() {
   const navigate = useNavigate();
-  const scheduleByMonth = buildScheduleByMonth(loadAvailability());
+  const { availability, loading: loadingAvailability, error: availabilityError } = useClinicAvailability();
+  const reviewModeSlots = useMemo(() => getReviewModeFallbackAvailability(), []);
+  const usingLiveSchedule = availability.length > 0;
+  const effectiveAvailability = useMemo(
+    () => (usingLiveSchedule ? availability : reviewModeSlots),
+    [availability, reviewModeSlots, usingLiveSchedule],
+  );
+  const scheduleByMonth = useMemo(() => buildScheduleByMonth(effectiveAvailability), [effectiveAvailability]);
   const monthKeys = Object.keys(scheduleByMonth);
-  const [selectedMonth, setSelectedMonth] = useState(monthKeys[0] || '');
+  const [selectedMonth, setSelectedMonth] = useState('');
   const [selection, setSelection] = useState({
     preferredDate: '',
     preferredTime: '',
   });
+
+  useEffect(() => {
+    if (monthKeys.length === 0) {
+      if (selectedMonth) setSelectedMonth('');
+      return;
+    }
+    if (!monthKeys.includes(selectedMonth)) {
+      setSelectedMonth(monthKeys[0]);
+      setSelection((prev) => ({ ...prev, preferredDate: '', preferredTime: '' }));
+    }
+  }, [monthKeys, selectedMonth]);
+
   const selectedMonthData = scheduleByMonth[selectedMonth] || { label: '', dates: [] };
   const availableDateValues = new Set(selectedMonthData.dates.map((date) => date.value));
   const calendarDays = buildCalendarDays(selectedMonth, availableDateValues);
@@ -113,6 +135,24 @@ export default function BookingRequestForm() {
                 <p className="appointment-picker__subtitle">
                   Please choose a date and time to be reviewed by the clinic.
                 </p>
+                {loadingAvailability && isSupabaseConfigured && (
+                  <p className="appointment-picker__subtitle" style={{ fontStyle: 'italic' }}>
+                    Loading clinic schedule…
+                  </p>
+                )}
+                {!usingLiveSchedule && (
+                  <p className="appointment-picker__subtitle" style={{ maxWidth: '32rem' }}>
+                    The online calendar is open for your request. Our team is still finalising the live
+                    schedule — you can pick any of the times below; we will confirm or adjust after review.
+                  </p>
+                )}
+                {availabilityError && (
+                  <p className="appointment-picker__empty" role="alert">
+                    {usingLiveSchedule
+                      ? 'Could not load the latest schedule. Try again, or use another time.'
+                      : 'We could not reach the live server; you can still choose a time from the list below for now.'}
+                  </p>
+                )}
               </div>
 
               <div className="appointment-picker__card">
@@ -184,7 +224,7 @@ export default function BookingRequestForm() {
                 </div>
 
                 <div className="appointment-picker__location-note">
-                  <strong>Location:</strong> Three Shires Hospital, The Avenue, Cliftonville, Northampton, NN1 5DR
+                  <strong>Location:</strong> {CLINIC_ADDRESS_FOR_BOOKING}
                 </div>
               </div>
             </section>

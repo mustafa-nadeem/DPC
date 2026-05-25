@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { setAdminAuthenticated } from '../utils/adminAuth';
+import { signOutAdmin } from '../utils/adminAuth';
 
 const navItems = [
   {
@@ -41,8 +41,9 @@ export default function AdminShell() {
     : 'Secretary operations';
 
   const handleLogout = () => {
-    setAdminAuthenticated(false);
-    navigate('/admin/login');
+    void signOutAdmin().then(() => {
+      navigate('/admin/login');
+    });
   };
 
   return (

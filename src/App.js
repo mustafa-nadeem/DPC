@@ -18,11 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminRequestDetail from './pages/AdminRequestDetail';
 import AdminAvailability from './pages/AdminAvailability';
 import AdminPayments from './pages/AdminPayments';
-import { isAdminAuthenticated } from './utils/adminAuth';
-
-function RequireAdminAuth({ children }) {
-  return isAdminAuthenticated() ? children : <Navigate to="/admin/login" replace />;
-}
+import RequireAdminAuth from './components/RequireAdminAuth';
 
 function AppLayout() {
   const location = useLocation();

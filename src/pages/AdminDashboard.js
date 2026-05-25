@@ -1,28 +1,89 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
+import {
+  listBookingRequests,
+  mapRequestToDashboard,
+  formatRequestReferenceId,
+  extractScheduleTimeLabel,
+} from '../api/bookingRequests';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
 
-const requests = [
-  { id: 'REQ-1042', patient: 'Sarah Bennett', status: 'Submitted', category: 'New Enquiry', submitted: 'Today, 08:12', action: 'Review and categorise' },
-  { id: 'REQ-1041', patient: 'Michael Khan', status: 'Under Review', category: 'Urgent', submitted: 'Today, 07:40', action: 'Call patient' },
-  { id: 'REQ-1040', patient: 'Olivia Shaw', status: 'Payment Pending', category: 'Follow-up', submitted: 'Yesterday', action: 'Send payment link' },
-  { id: 'REQ-1039', patient: 'Daniel Green', status: 'Appointment Proposed', category: 'Routine', submitted: 'Yesterday', action: 'Confirm slot' },
-  { id: 'REQ-1038', patient: 'Lucy Dean', status: 'Awaiting More Information', category: 'New Enquiry', submitted: '2 days ago', action: 'Await response' },
-];
-
-const scheduleItems = [
-  { time: '09:00', patient: 'Richard Hartley', clinician: 'Dr Kazeem Salako', type: 'Follow-up', location: 'Three Shires Hospital' },
-  { time: '09:30', patient: 'Melanie Brentnall', clinician: 'Dr Kazeem Salako', type: 'New', location: 'Three Shires Hospital' },
-  { time: '11:00', patient: 'Deborah Graham', clinician: 'Dr Amelia Carter', type: 'Routine', location: 'Tele-consult' },
-  { time: '14:30', patient: 'Mykola Derevinskyy', clinician: 'Dr Amelia Carter', type: 'Follow-up', location: 'Three Shires Hospital' },
-];
+const todayYmd = () => {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+};
 
 export default function AdminDashboard() {
   const [viewMode, setViewMode] = useState('day');
-  const submittedCount = requests.filter((request) => request.status === 'Submitted').length;
-  const reviewCount = requests.filter((request) => request.status === 'Under Review').length;
-  const paymentPendingCount = requests.filter((request) => request.status === 'Payment Pending').length;
-  const scheduleTitle = useMemo(() => (viewMode === 'day' ? 'Today schedule' : 'Week schedule'), [viewMode]);
+  const [rawRequests, setRawRequests] = useState([]);
+  const [loading, setLoading] = useState(!!isSupabaseConfigured);
+  const [loadError, setLoadError] = useState(null);
+  const [tableSearch, setTableSearch] = useState('');
+
+  const load = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setRawRequests([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const rows = await listBookingRequests();
+      setRawRequests(rows);
+    } catch (e) {
+      setLoadError(e);
+      setRawRequests([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const requests = useMemo(() => rawRequests.map(mapRequestToDashboard).filter(Boolean), [rawRequests]);
+  const filteredRequests = useMemo(() => {
+    const q = tableSearch.trim().toLowerCase();
+    if (!q) return requests;
+    return requests.filter((r) => {
+      const idFrag = String(r.id || '').toLowerCase();
+      const ref = formatRequestReferenceId(r.id).toLowerCase();
+      const hay = `${r.patient} ${r.status} ${r.category} ${r.submitted} ${r.action} ${idFrag} ${ref}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [requests, tableSearch]);
+  const submittedCount = useMemo(
+    () => rawRequests.filter((r) => r.status === 'Submitted').length,
+    [rawRequests],
+  );
+  const reviewCount = useMemo(
+    () => rawRequests.filter((r) => r.status === 'Under Review').length,
+    [rawRequests],
+  );
+  const paymentPendingCount = useMemo(
+    () => rawRequests.filter((r) => r.status === 'Payment Pending').length,
+    [rawRequests],
+  );
+  const scheduleTitle = useMemo(
+    () => (viewMode === 'day' ? "Today's schedule (from requests)" : 'Upcoming in selected view'),
+    [viewMode],
+  );
+  const today = todayYmd();
+  const scheduleItems = useMemo(() => {
+    return rawRequests
+      .filter((r) => r.preferred_date === today)
+      .map((r) => ({
+        key: r.id,
+        time: extractScheduleTimeLabel(r.preferred_time),
+        patient: `${r.first_name || ''} ${r.surname || ''}`.trim() || '—',
+        clinician: 'TBD',
+        type: r.category || '—',
+        location: "8 St John's Square, Daventry",
+      }));
+  }, [rawRequests, today]);
 
   return (
     <section className="admin-page">
@@ -31,6 +92,13 @@ export default function AdminDashboard() {
           title="Request dashboard"
           subtitle="See requests, clinician workload, and appointment flow across day and week views."
         />
+
+        {isSupabaseConfigured && loadError && (
+          <p className="admin-login__error" role="alert">
+            {String(loadError?.message || loadError)}
+          </p>
+        )}
+        {isSupabaseConfigured && loading && <p style={{ opacity: 0.7 }}>Loading requests…</p>}
 
         <section className="admin-kpis">
           <article className="admin-kpi-card">
@@ -78,16 +146,28 @@ export default function AdminDashboard() {
             </div>
 
             <div className="admin-schedule-list">
-              {scheduleItems.map((item) => (
-                <article key={`${item.time}-${item.patient}`} className="admin-schedule-item">
-                  <p className="admin-schedule-item__time">{item.time}</p>
-                  <div>
-                    <p className="admin-schedule-item__title">{item.patient}</p>
-                    <p className="admin-schedule-item__meta">{item.clinician} - {item.location}</p>
-                  </div>
-                  <span className="admin-status-tag">{item.type}</span>
-                </article>
-              ))}
+              {viewMode === 'day' && scheduleItems.length > 0 ? (
+                scheduleItems.map((item) => (
+                  <article key={item.key} className="admin-schedule-item">
+                    <p className="admin-schedule-item__time">{item.time}</p>
+                    <div>
+                      <p className="admin-schedule-item__title">{item.patient}</p>
+                      <p className="admin-schedule-item__meta">
+                        {item.clinician} — {item.location}
+                      </p>
+                    </div>
+                    <span className="admin-status-tag">{item.type}</span>
+                  </article>
+                ))
+              ) : (
+                <p style={{ padding: '1rem', opacity: 0.75 }}>
+                  {viewMode === 'week'
+                    ? 'Use the list below for the full week; the day view shows only requests on today’s date with a preferred time.'
+                    : isSupabaseConfigured
+                      ? 'No requests for today with a stored preferred date yet, or all preferred dates are on other days.'
+                      : 'Connect Supabase to load live requests.'}
+                </p>
+              )}
             </div>
           </section>
 
@@ -98,13 +178,13 @@ export default function AdminDashboard() {
             <div className="admin-clinician-list">
               <article className="admin-clinician-card">
                 <h3>Dr Kazeem Salako</h3>
-                <p>6 patients today</p>
-                <p>2 follow-up / 4 new</p>
+                <p>Mon/Wed clinic</p>
+                <p>—</p>
               </article>
               <article className="admin-clinician-card">
-                <h3>Dr Amelia Carter</h3>
-                <p>4 patients today</p>
-                <p>1 urgent / 3 routine</p>
+                <h3>Dr Ahmad Kusimo</h3>
+                <p>GP sessions</p>
+                <p>—</p>
               </article>
             </div>
           </section>
@@ -115,6 +195,9 @@ export default function AdminDashboard() {
             <input
               className="admin-toolbar__search"
               placeholder="Search by patient, request ID, or contact..."
+              value={tableSearch}
+              onChange={(e) => setTableSearch(e.target.value)}
+              aria-label="Filter booking requests"
             />
             <div className="admin-toolbar__chips">
               <button type="button" className="admin-chip is-active">All</button>
@@ -133,11 +216,27 @@ export default function AdminDashboard() {
               <span>Submitted</span>
               <span>Next action</span>
             </div>
-            {requests.map((request) => (
+            {isSupabaseConfigured && requests.length === 0 && !loading && !loadError && (
+              <div className="admin-table__row" style={{ gridTemplateColumns: '1fr' }}>
+                <span style={{ padding: '1rem', opacity: 0.8 }}>No booking requests yet. Patients appear here when they complete the public form.</span>
+              </div>
+            )}
+            {isSupabaseConfigured &&
+              requests.length > 0 &&
+              filteredRequests.length === 0 &&
+              !loading &&
+              !loadError && (
+                <div className="admin-table__row" style={{ gridTemplateColumns: '1fr' }}>
+                  <span style={{ padding: '1rem', opacity: 0.8 }}>No requests match your search.</span>
+                </div>
+              )}
+            {filteredRequests.map((request) => (
               <Link key={request.id} to={`/admin/requests/${request.id}`} className="admin-table__row">
-                <span>{request.id}</span>
+                <span>{formatRequestReferenceId(request.id)}</span>
                 <span>{request.patient}</span>
-                <span><em className="admin-status-tag">{request.status}</em></span>
+                <span>
+                  <em className="admin-status-tag">{request.status}</em>
+                </span>
                 <span>{request.category}</span>
                 <span>{request.submitted}</span>
                 <span>{request.action}</span>

@@ -1,42 +1,43 @@
 const AVAILABILITY_STORAGE_KEY = 'dpc_availability_v1';
 
-const defaultAvailability = [
-  {
-    date: '2026-05-04',
-    slots: [
-      { time: '09:00', capacity: 4, enabled: true },
-      { time: '09:30', capacity: 3, enabled: true },
-      { time: '10:30', capacity: 2, enabled: true },
-      { time: '13:30', capacity: 2, enabled: true },
-    ],
-  },
-  {
-    date: '2026-05-05',
-    slots: [
-      { time: '09:00', capacity: 2, enabled: true },
-      { time: '11:00', capacity: 3, enabled: true },
-      { time: '12:30', capacity: 1, enabled: true },
-    ],
-  },
-  {
-    date: '2026-05-06',
-    slots: [
-      { time: '10:00', capacity: 2, enabled: true },
-      { time: '11:30', capacity: 2, enabled: true },
-      { time: '14:00', capacity: 2, enabled: false },
-    ],
-  },
-  {
-    date: '2026-06-03',
-    slots: [
-      { time: '09:00', capacity: 3, enabled: true },
-      { time: '09:30', capacity: 2, enabled: true },
-      { time: '11:00', capacity: 2, enabled: true },
-    ],
-  },
+/** No demo slots: schedule is only what staff (or a successful Supabase load) has configured. */
+export const defaultAvailability = [];
+
+const toLocalYmd = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const REVIEW_WEEKDAY_SLOT_TIMES = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
 ];
 
-const isValidAvailability = (value) => {
+/**
+ * When the live schedule is still empty, the public booking form can use this
+ * so patients can select dates while the portal is under review (does not change admin or DB by itself).
+ */
+export function getReviewModeFallbackAvailability() {
+  const out = [];
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  for (let i = 0; i < 84; i += 1) {
+    if (out.length >= 20) break;
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    const wd = d.getDay();
+    if (wd === 0 || wd === 6) continue;
+    out.push({
+      date: toLocalYmd(d),
+      slots: REVIEW_WEEKDAY_SLOT_TIMES.map((time) => ({ time, capacity: 5, enabled: true })),
+    });
+  }
+  return out;
+}
+
+export const isValidAvailability = (value) => {
   if (!Array.isArray(value)) return false;
   return value.every((day) => typeof day.date === 'string' && Array.isArray(day.slots));
 };

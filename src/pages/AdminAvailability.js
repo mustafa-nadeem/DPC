@@ -1,13 +1,14 @@
 import AdminHeader from '../components/AdminHeader';
 import { useMemo, useState } from 'react';
-import { loadAvailability, saveAvailability } from '../utils/availabilityStore';
+import { useClinicAvailability } from '../hooks/useClinicAvailability';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
 
 const formatDateLabel = (date) =>
   new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: '2-digit', month: 'short' })
     .format(new Date(`${date}T00:00:00`));
 
 export default function AdminAvailability() {
-  const [availability, setAvailability] = useState(loadAvailability);
+  const { availability, loading, error: persistError, persist } = useClinicAvailability();
   const [newDate, setNewDate] = useState('');
   const [newSlotByDate, setNewSlotByDate] = useState({});
   const [viewMode, setViewMode] = useState('week');
@@ -19,9 +20,8 @@ export default function AdminAvailability() {
     return { openSlots, totalCapacity, dayCount: availability.length };
   }, [availability]);
 
-  const persist = (next) => {
-    setAvailability(next);
-    saveAvailability(next);
+  const doPersist = (next) => {
+    void persist(next);
   };
 
   const updateSlot = (date, time, updater) => {
@@ -35,13 +35,13 @@ export default function AdminAvailability() {
         }),
       };
     });
-    persist(next);
+    doPersist(next);
   };
 
   const addDate = () => {
     if (!newDate || availability.some((day) => day.date === newDate)) return;
     const next = [...availability, { date: newDate, slots: [] }].sort((a, b) => a.date.localeCompare(b.date));
-    persist(next);
+    doPersist(next);
     setNewDate('');
   };
 
@@ -52,7 +52,7 @@ export default function AdminAvailability() {
       if (day.date !== date || day.slots.some((slot) => slot.time === slotTime)) return day;
       return { ...day, slots: [...day.slots, { time: slotTime, capacity: 1, enabled: true }] };
     });
-    persist(next);
+    doPersist(next);
     setNewSlotByDate((prev) => ({ ...prev, [date]: '' }));
   };
 
@@ -61,7 +61,7 @@ export default function AdminAvailability() {
       if (day.date !== date) return day;
       return { ...day, slots: day.slots.filter((slot) => slot.time !== time) };
     });
-    persist(next);
+    doPersist(next);
   };
 
   return (
@@ -71,6 +71,18 @@ export default function AdminAvailability() {
           title="Availability and calendar"
           subtitle="Configure offerable slots by day and week, including capacity per time slot."
         />
+
+        {isSupabaseConfigured && (
+          <p style={{ opacity: 0.75, maxWidth: '40rem' }}>
+            Changes are saved to Supabase so the public booking form uses the same schedule.
+          </p>
+        )}
+        {loading && <p style={{ opacity: 0.7 }}>Loading schedule from the server…</p>}
+        {persistError && (
+          <p className="admin-login__error" role="alert">
+            {String(persistError?.message || persistError)}
+          </p>
+        )}
 
         <section className="admin-kpis">
           <article className="admin-kpi-card">
@@ -187,12 +199,12 @@ export default function AdminAvailability() {
                 <article className="admin-clinician-card">
                   <h3>Dr Kazeem Salako</h3>
                   <p>Mon/Wed clinic</p>
-                  <p>Current bookings: 8</p>
+                  <p>Current bookings: —</p>
                 </article>
                 <article className="admin-clinician-card">
                   <h3>Dr Amelia Carter</h3>
                   <p>Tue/Thu clinic</p>
-                  <p>Current bookings: 6</p>
+                  <p>Current bookings: —</p>
                 </article>
               </div>
             </aside>

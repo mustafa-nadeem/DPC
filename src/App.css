@@ -718,13 +718,10 @@
 
 .hero__video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 177.78vh;
-  height: 56.25vw;
-  min-width: 100%;
-  min-height: 100%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border: none;
   pointer-events: none;
 }
@@ -1926,12 +1923,13 @@
 .founders__cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 28px;
+  gap: 24px;
+  align-items: start;
 }
 
 .founder-card {
   background: #ffffff;
-  border-radius: 18px;
+  border-radius: 20px;
   border: 1px solid #e8e8eb;
   overflow: hidden;
   display: flex;
@@ -1946,24 +1944,28 @@
 
 .founder-card__image {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 4;
   background: linear-gradient(145deg, #c8cdd8 0%, #a8b0c0 40%, #8892a8 100%);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
 }
 
 .founder-card__body {
-  padding: 24px 24px 0;
+  padding: 22px 24px 24px;
 }
 
 .founder-card__name {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-family: var(--font-heading);
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   font-weight: 600;
   color: #111111;
   line-height: 1.25;
 }
 
 .founder-card__role {
+  display: block;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -2030,6 +2032,14 @@
   .founders__cards {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .founder-card__body {
+    padding: 18px 18px 20px;
+  }
+
+  .founder-card__name {
+    font-size: 1.35rem;
   }
 }
 
@@ -2191,12 +2201,6 @@
   outline-offset: 3px;
 }
 
-.service-listing__image {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, #e8eaf0 0%, #d1d5e0 50%, #c4c8d4 100%);
-}
-
 .service-listing__body {
   padding: 28px 28px 32px;
 }
@@ -2351,6 +2355,17 @@
 .service-template__toc-link.is-active {
   font-weight: 600;
   color: #1b2f4f;
+}
+
+.service-template__sidebar-cta {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e4e9f2;
+}
+
+.service-template__sidebar-cta .service-template__button {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .service-template__content {

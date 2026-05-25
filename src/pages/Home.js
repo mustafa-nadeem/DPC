@@ -1,35 +1,43 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import placeholderImg from '../assets/landing-page/pexels-cedric-fauntleroy-4266942.jpg';
+import heroVideo from '../assets/landing-page/hero.mp4';
 import introImage from '../assets/landing-page/3c677590e3b04eb08ff5c40875e2aaa9.webp';
 import SiteFooter from '../components/SiteFooter';
 import useScrollReveal from '../hooks/useScrollReveal';
-import { getServicePathByTitle } from '../data/services';
+import { getServicePath, gpServices, skinServices } from '../data/services';
 
-const services = [
-  { title: 'Private GP Birmingham', summary: 'Same-week appointments with experienced GPs for consultations, referrals, and ongoing care.', theme: 'service-card--women', size: 'service-card--short' },
-  { title: 'Hay Fever Treatment', summary: 'Fast-access allergy assessment and targeted treatment to manage seasonal symptoms.', theme: 'service-card--respiratory', size: 'service-card--tall' },
-  { title: 'Immunisations', summary: 'Travel and routine vaccinations administered by our clinical team at your convenience.', theme: 'service-card--neuro', size: 'service-card--medium' },
-  { title: 'Travel Clinic', summary: 'Pre-travel health advice, vaccinations, and medication to keep you safe abroad.', theme: 'service-card--ortho', size: 'service-card--short' },
-  { title: 'Weight Loss Clinic', summary: 'Personalised weight management plans with clinical oversight and ongoing support.', theme: 'service-card--maternity', size: 'service-card--tall' },
-  { title: 'Longevity & Lifestyle Clinic', summary: 'Evidence-based health optimisation to help you live longer and feel your best.', theme: 'service-card--cardiac', size: 'service-card--medium' },
-  { title: 'Menopause & Female Health', summary: 'Specialist support for hormonal health, menopause, and wellbeing at every stage.', theme: 'service-card--fertility', size: 'service-card--tall' },
+const gpCardThemes = [
+  'service-card--respiratory',
+  'service-card--neuro',
+  'service-card--ortho',
+  'service-card--maternity',
+  'service-card--cardiac',
+  'service-card--fertility',
 ];
+const skinCardThemes = [
+  'service-card--derm-mole',
+  'service-card--derm-pigment',
+  'service-card--derm-rosacea',
+  'service-card--derm-eczema',
+  'service-card--derm-acne',
+  'service-card--derm-scalp',
+  'service-card--cancer',
+];
+const cardSizes = ['service-card--short', 'service-card--tall', 'service-card--medium'];
 
-const dermatologyServices = [
-  { title: 'Moles', summary: 'Expert mole assessment, monitoring, and removal with fast onward referral when needed.', theme: 'service-card--derm-mole', size: 'service-card--short' },
-  { title: 'Vitiligo', summary: 'Specialist diagnosis and personalised treatment plans for skin depigmentation.', theme: 'service-card--derm-pigment', size: 'service-card--tall' },
-  { title: 'Urticaria', summary: 'Allergy-led assessment and management for chronic or acute hives and skin reactions.', theme: 'service-card--derm-rosacea', size: 'service-card--medium' },
-  { title: 'Eczema', summary: 'Specialist diagnosis and treatment plans for eczema flare-ups, itch control, and long-term skin health.', theme: 'service-card--derm-eczema', size: 'service-card--short' },
-  { title: 'Excessive Sweating', summary: 'Clinical treatments for hyperhidrosis including topical and injectable options.', theme: 'service-card--derm-eczema', size: 'service-card--short' },
-  { title: 'Psoriasis', summary: 'Long-term skin condition management with personalised care plans and follow-up.', theme: 'service-card--derm-acne', size: 'service-card--tall' },
-  { title: 'Benign Skin Lesion', summary: 'Safe removal of cysts, lipomas, skin tags, and other benign lesions by our clinicians.', theme: 'service-card--derm-scalp', size: 'service-card--medium' },
-  { title: 'Infantile Acne', summary: 'Gentle, clinician-led care for acne in infants with tailored treatment guidance for parents.', theme: 'service-card--derm-acne', size: 'service-card--tall' },
-  { title: 'Skin Cancer', summary: 'Rapid skin cancer screening, diagnosis, and referral pathways with specialist oversight.', theme: 'service-card--cancer', size: 'service-card--short' },
-  { title: 'Skin Itching & its causes', summary: 'Comprehensive assessment to identify and treat the root causes of persistent skin itching.', theme: 'service-card--derm-eczema', size: 'service-card--medium' },
-  { title: 'Male Genital Skin Disorders', summary: 'Discreet, specialist consultation and treatment for dermatological conditions in men.', theme: 'service-card--derm-mole', size: 'service-card--tall' },
-  { title: 'Hair Loss', summary: 'Diagnosis and treatment of alopecia and other hair loss conditions with ongoing support.', theme: 'service-card--derm-scalp', size: 'service-card--short' },
-];
+const buildRailServices = (services, themes) =>
+  services.map((service, index) => ({
+    slug: service.slug,
+    title: service.title,
+    summary: service.description,
+    href: getServicePath(service.slug),
+    theme: themes[index % themes.length],
+    size: cardSizes[index % cardSizes.length],
+  }));
+
+const services = buildRailServices(gpServices, gpCardThemes);
+const dermatologyServices = buildRailServices(skinServices, skinCardThemes);
 
 const testimonials = [
   {
@@ -84,81 +92,27 @@ const testimonialColumns = [0, 1, 2].map((offset) => (
 ));
 
 export default function Home() {
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   useScrollReveal();
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 720px)');
-    if (!mq.matches) return undefined;
-
-    const rails = document.querySelectorAll('.services__rail');
-    const cleanups = [];
-
-    rails.forEach((rail) => {
-      let rafId = 0;
-      let pausedUntil = 0;
-      let lastTs = performance.now();
-      const pxPerSec = 28;
-
-      const start = () => {
-        if (!rail.scrollWidth) return;
-        rail.scrollLeft = 1;
-      };
-
-      const step = (ts) => {
-        const dt = ts - lastTs;
-        lastTs = ts;
-        if (ts >= pausedUntil) {
-          const delta = (pxPerSec * dt) / 1000;
-          const half = rail.scrollWidth / 2;
-          let next = rail.scrollLeft + delta;
-          if (half > 0 && next >= half) next -= half;
-          rail.scrollLeft = next;
-        }
-        rafId = requestAnimationFrame(step);
-      };
-
-      const pause = () => {
-        pausedUntil = performance.now() + 3000;
-      };
-
-      const nudgePause = () => {
-        pausedUntil = performance.now() + 2500;
-      };
-
-      rail.addEventListener('pointerdown', pause, { passive: true });
-      rail.addEventListener('touchstart', pause, { passive: true });
-      rail.addEventListener('wheel', nudgePause, { passive: true });
-      rail.addEventListener('mouseenter', pause);
-      rail.addEventListener('mouseleave', () => { pausedUntil = performance.now() + 600; });
-
-      requestAnimationFrame((ts) => {
-        lastTs = ts;
-        start();
-        rafId = requestAnimationFrame(step);
-      });
-
-      cleanups.push(() => {
-        cancelAnimationFrame(rafId);
-      });
-    });
-
-    return () => cleanups.forEach((fn) => fn());
-  }, []);
 
   return (
     <>
       <section id="home" className="hero" style={{ backgroundImage: `url(${placeholderImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <iframe
-          className="hero__video"
-          title="Daventry Private Clinic background video"
-          src="https://player.vimeo.com/video/1022115820?background=1&muted=1&api=1&loop=1&autoplay=1"
-          aria-hidden="true"
-          allow="autoplay"
-          seamless
-          onLoad={() => setVideoLoaded(true)}
-          style={{ opacity: videoLoaded ? 1 : 0, transition: 'opacity 0.8s ease' }}
-        />
+        {!videoFailed && (
+          <video
+            className="hero__video"
+            aria-hidden="true"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={placeholderImg}
+            onError={() => setVideoFailed(true)}
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+        )}
         <div className="hero__overlay" aria-hidden="true" />
         <div className="hero__content container">
           <h1 className="hero__title" data-reveal="up">Private healthcare,<br />built around you.</h1>
@@ -236,22 +190,12 @@ export default function Home() {
           <div className="services__rail" data-reveal="up">
             <div className="services__track">
               {services.map((service) => (
-                <article key={service.title} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
+                <article key={service.slug} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
                   <div className="service-card__scrim" aria-hidden="true" />
                   <div className="service-card__content">
                     <h3 className="service-card__title">{service.title}</h3>
                     <p className="service-card__summary">{service.summary}</p>
-                    <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
-                  </div>
-                </article>
-              ))}
-              {services.map((service) => (
-                <article key={`${service.title}-clone`} className={`service-card service-card--clone ${service.theme} ${service.size}`} aria-hidden="true">
-                  <div className="service-card__scrim" aria-hidden="true" />
-                  <div className="service-card__content">
-                    <h3 className="service-card__title">{service.title}</h3>
-                    <p className="service-card__summary">{service.summary}</p>
-                    <span className="service-card__link" aria-hidden="true">Learn more</span>
+                    <Link className="service-card__link" to={service.href}>Learn more</Link>
                   </div>
                 </article>
               ))}
@@ -267,22 +211,12 @@ export default function Home() {
           <div className="services__rail" data-reveal="up">
             <div className="services__track">
               {dermatologyServices.map((service) => (
-                <article key={service.title} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
+                <article key={service.slug} className={`service-card ${service.theme} ${service.size}`} aria-label={service.title}>
                   <div className="service-card__scrim" aria-hidden="true" />
                   <div className="service-card__content">
                     <h3 className="service-card__title">{service.title}</h3>
                     <p className="service-card__summary">{service.summary}</p>
-                    <Link className="service-card__link" to={getServicePathByTitle(service.title)}>Learn more</Link>
-                  </div>
-                </article>
-              ))}
-              {dermatologyServices.map((service) => (
-                <article key={`${service.title}-clone`} className={`service-card service-card--clone ${service.theme} ${service.size}`} aria-hidden="true">
-                  <div className="service-card__scrim" aria-hidden="true" />
-                  <div className="service-card__content">
-                    <h3 className="service-card__title">{service.title}</h3>
-                    <p className="service-card__summary">{service.summary}</p>
-                    <span className="service-card__link" aria-hidden="true">Learn more</span>
+                    <Link className="service-card__link" to={service.href}>Learn more</Link>
                   </div>
                 </article>
               ))}

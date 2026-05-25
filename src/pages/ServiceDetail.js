@@ -857,6 +857,9 @@ export default function ServiceDetail() {
           <span className="service-template__eyebrow">{service.category}</span>
           <h1 className="page-hero__title">{service.title}</h1>
           <p className="page-hero__subtitle">{service.description}</p>
+          <Link className="hero__cta" to="/contact">
+            Book consultation
+          </Link>
         </div>
       </section>
 
@@ -877,6 +880,11 @@ export default function ServiceDetail() {
                   </a>
                 ))}
               </nav>
+              <div className="service-template__sidebar-cta">
+                <Link className="service-template__button" to="/contact">
+                  Book consultation
+                </Link>
+              </div>
             </div>
           </aside>
 

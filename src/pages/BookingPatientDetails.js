@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import SiteFooter from '../components/SiteFooter';
+import { CLINIC_ADDRESS_FOR_BOOKING } from '../config/clinicAddress';
+import { createBookingRequest } from '../api/bookingRequests';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
 
 const formatUkDateInput = (value) => {
   const digits = value.replace(/\D/g, '').slice(0, 8);
@@ -22,12 +25,11 @@ export default function BookingPatientDetails() {
     gender: '',
     email: '',
     mobile: '',
-    addressLookup: '',
-    gpPractice: '',
-    noGp: false,
     reason: '',
     consent: false,
   });
+  const [submitError, setSubmitError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -38,13 +40,36 @@ export default function BookingPatientDetails() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!preferredDate || !preferredTime) {
       navigate('/booking/request');
       return;
     }
-    navigate('/booking/confirmation');
+    if (!isSupabaseConfigured) {
+      setSubmitError(
+        'Booking is temporarily unavailable on this deployment. Supabase is not configured correctly. Please contact the clinic.',
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError('');
+    const { data, error } = await createBookingRequest({
+      ...form,
+      preferredDate,
+      preferredTime,
+    });
+    setSubmitting(false);
+    if (error) {
+      setSubmitError(error.message || 'Could not submit. Please check your connection and try again.');
+      return;
+    }
+    if (data?.id) {
+      navigate('/booking/confirmation', { state: { referenceId: data.id } });
+      return;
+    }
+    setSubmitError('Could not create a booking reference. Please try again.');
   };
 
   if (!preferredDate || !preferredTime) {
@@ -124,33 +149,6 @@ export default function BookingPatientDetails() {
                 <input name="mobile" value={form.mobile} onChange={handleChange} required />
               </label>
 
-              <h3 className="booking-details__section-title consultation-form__field--full">Your address</h3>
-              <label className="consultation-form__field consultation-form__field--full">
-                <span>Address lookup</span>
-                <input
-                  name="addressLookup"
-                  placeholder="Start typing your address here"
-                  value={form.addressLookup}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <h3 className="booking-details__section-title consultation-form__field--full">Your GP surgery address</h3>
-              <label className="consultation-form__field consultation-form__field--full">
-                <span>Practice lookup</span>
-                <input
-                  name="gpPractice"
-                  placeholder="Please enter your GP practice"
-                  value={form.gpPractice}
-                  onChange={handleChange}
-                  disabled={form.noGp}
-                />
-              </label>
-              <label className="consultation-form__checkbox consultation-form__field--full">
-                <input name="noGp" type="checkbox" checked={form.noGp} onChange={handleChange} />
-                <span>I am not registered with a GP surgery</span>
-              </label>
-
               <label className="consultation-form__field consultation-form__field--full">
                 <span>Reason for your booking</span>
                 <textarea
@@ -170,8 +168,11 @@ export default function BookingPatientDetails() {
                 <span>I consent to the clinic processing this information for my booking request.</span>
               </label>
 
+              {submitError && <p className="admin-login__error consultation-form__field--full" role="alert">{submitError}</p>}
               <div className="consultation-form__actions consultation-form__field--full consultation-form__actions--end">
-                <button type="submit" className="consultation-page__primary">Book my appointment</button>
+                <button type="submit" className="consultation-page__primary" disabled={submitting}>
+                  {submitting ? 'Submitting…' : 'Book my appointment'}
+                </button>
               </div>
             </form>
 
@@ -180,8 +181,7 @@ export default function BookingPatientDetails() {
                 <h3>Dr Kazeem Salako</h3>
                 <p>Consultant Dermatologist</p>
                 <p><strong>{preferredDate}</strong> at <strong>{preferredTime}</strong></p>
-                <p>Three Shires Hospital, Northampton, NN1 5DR</p>
-                <p><strong>Initial consultation price: GBP 200.00</strong></p>
+                <p>{CLINIC_ADDRESS_FOR_BOOKING}</p>
               </div>
               <p className="booking-details__privacy-note">
                 All your information is securely stored and protected.

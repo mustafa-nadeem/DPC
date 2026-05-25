@@ -23,7 +23,6 @@ export default function GpServices() {
               to={getServicePath(service.slug)}
               aria-label={`View ${service.title} service page`}
             >
-              <div className="service-listing__image" aria-hidden="true" />
               <div className="service-listing__body">
                 <h3 className="service-listing__title">{service.title}</h3>
                 <p className="service-listing__description">{service.description}</p>

@@ -35,9 +35,9 @@ export default function SiteFooter() {
           <div className="footer__column">
             <h3 className="footer__title">Address</h3>
             <ul className="footer__list">
-              <li>Three Shires Hospital</li>
-              <li>90 Pope Street</li>
-              <li>Daventry, United Kingdom</li>
+              <li>8 St John&apos;s Square</li>
+              <li>Daventry NN11 4FG</li>
+              <li>United Kingdom</li>
             </ul>
           </div>
         </div>

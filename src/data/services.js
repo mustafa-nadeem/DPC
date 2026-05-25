@@ -51,12 +51,6 @@ const gpServicesRaw = [
     category: 'GP Service',
   },
   {
-    slug: 'private-gp-birmingham',
-    title: 'Private GP Birmingham',
-    description: 'Same-week appointments with experienced GPs for consultations, referrals, and ongoing care.',
-    category: 'GP Service',
-  },
-  {
     slug: 'routine-blood-tests',
     title: 'Routine Blood Tests',
     description: 'Private routine blood testing with clinician interpretation and follow-up planning where needed.',

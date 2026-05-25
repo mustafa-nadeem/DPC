@@ -1,7 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import SiteFooter from '../components/SiteFooter';
+import { formatRequestReferenceId } from '../api/bookingRequests';
 
 export default function BookingConfirmation() {
+  const { state } = useLocation();
+  const referenceId = state?.referenceId;
+
   return (
     <>
       <section className="consultation-page">
@@ -13,6 +17,12 @@ export default function BookingConfirmation() {
               Thank you. Your consultation request has been submitted successfully.
               The clinic team will review your details and come back with next steps.
             </p>
+            {referenceId && (
+              <p className="booking-confirmation__text" style={{ marginTop: '1rem' }}>
+                <strong>Your reference:</strong> {formatRequestReferenceId(referenceId)} (the clinic can use the full
+                id if you need to call us)
+              </p>
+            )}
             <div className="booking-confirmation__actions">
               <Link className="booking-confirmation__button" to="/contact">
                 Back to booking home
